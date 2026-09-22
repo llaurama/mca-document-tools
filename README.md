@@ -11,6 +11,20 @@ reconciliation, and OCR workflows with reproducible sample data.
 Generation happens in the browser. All documents carry synthetic-test markings.
 Revenue tiers, financing schedules, and ownership options define sample scenarios.
 
+## Screenshots
+
+### Tool selection
+
+![Landing page with links to the bank statement and signed application generators](docs/images/landing.png)
+
+### Bank statement generator
+
+![Bank statement settings alongside a synthetic statement preview](docs/images/bank-statements.png)
+
+### Signed application generator
+
+![Business and owner settings alongside a synthetic MCA application preview](docs/images/mca-applications.png)
+
 ## How To Run
 
 From this directory:
