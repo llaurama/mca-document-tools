@@ -1,7 +1,3 @@
----
-last_edited: 2026-09-22
----
-
 # MCA document tools
 
 Standalone browser tools for generating synthetic bank statements and signed

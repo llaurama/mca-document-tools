@@ -1,7 +1,3 @@
----
-last_edited: 2026-09-22
----
-
 # Generator regression tests
 
 Run `npm test` from the project root (Node 22 or later; no package installation required). Tests use Node's built-in runner and import only the site's native modules and these fixtures. Browser layout, navigation, printing, dependency failure, and ZIP export additionally need browser checks.
