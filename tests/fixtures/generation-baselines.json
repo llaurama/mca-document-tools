@@ -1,0 +1,565 @@
+{
+  "description": "Pinned regression expectations for generated data and document HTML. Hashes are SHA-256 of exact UTF-8 JSON.stringify(result) and rendered HTML. Review intentional behavior changes before updating expected hashes.",
+  "random": [
+    {
+      "seed": "",
+      "values": [
+        0.6112444521859288,
+        0.4935242917854339,
+        0.7740248835179955,
+        0.4122861116193235,
+        0.8122657814528793,
+        0.05720820324495435,
+        0.9159039182122797,
+        0.19360002595931292,
+        0.8795722194481641,
+        0.5506070626433939,
+        0.44438135903328657,
+        0.2527001644484699
+      ]
+    },
+    {
+      "seed": "refactor-baseline",
+      "values": [
+        0.13353538373485208,
+        0.4916271495167166,
+        0.19190738163888454,
+        0.4002579764928669,
+        0.31461513275280595,
+        0.7758122808299959,
+        0.27441190811805427,
+        0.8618290096055716,
+        0.5709105383139104,
+        0.24365606508217752,
+        0.8390537148807198,
+        0.8855195709038526
+      ]
+    },
+    {
+      "seed": "é🚀漢字",
+      "values": [
+        0.5219871944282204,
+        0.5245997924357653,
+        0.39620431745424867,
+        0.9173141466453671,
+        0.7221343233250082,
+        0.1364464140497148,
+        0.7494712667539716,
+        0.2838056597393006,
+        0.23559553525410593,
+        0.526811959920451,
+        0.6373034233693033,
+        0.7197367027401924
+      ]
+    },
+    {
+      "seed": "é",
+      "values": [
+        0.6291948843281716,
+        0.32243099110201,
+        0.569402470253408,
+        0.22044695750810206,
+        0.6823020328301936,
+        0.7062479502055794,
+        0.5601650930475444,
+        0.26696666120551527,
+        0.027346329065039754,
+        0.1919745176564902,
+        0.6769719885196537,
+        0.5911243425216526
+      ]
+    },
+    {
+      "seed": " spaced seed ",
+      "values": [
+        0.32065634336322546,
+        0.2999166054651141,
+        0.11425855429843068,
+        0.1208669375628233,
+        0.6174244647845626,
+        0.4493985907174647,
+        0.2936755293048918,
+        0.0732744368724525,
+        0.27839613845571876,
+        0.5935690188780427,
+        0.9701865541283041,
+        0.23281284514814615
+      ]
+    }
+  ],
+  "catalog": {
+    "count": 10,
+    "noncanonicalAliasCount": 8,
+    "sha256": "bff9f0949966fe2e3f00a90c262d39c4ee65ec03b276b49c3e5aa945231379c5"
+  },
+  "bank": [
+    {
+      "name": "default",
+      "config": {
+        "bizName": "",
+        "ownerName": "",
+        "bank": "random",
+        "lastMonth": "2024-03",
+        "numMonths": 3,
+        "revenue": "moderate",
+        "balanceTier": "mid",
+        "allowOverdraft": false,
+        "seed": "refactor-baseline",
+        "breakMode": "none",
+        "financings": [],
+        "debtCollectors": []
+      },
+      "resultSha256": "014c382c3a9e42b5c2a9ce76d6799db7e7954c2118a06e77cc51a695ce0c5ffd",
+      "htmlSha256": "71441291a31da2df802bfe087e4c36386c522876271e8c0df909e4ea5687fca9"
+    },
+    {
+      "name": "verylight-daily-negative",
+      "config": {
+        "bizName": "",
+        "ownerName": "",
+        "bank": "random",
+        "lastMonth": "2024-03",
+        "numMonths": 6,
+        "revenue": "verylight",
+        "balanceTier": "verylow",
+        "allowOverdraft": false,
+        "seed": "negative-0",
+        "breakMode": "none",
+        "financings": [
+          {
+            "pattern": "obfuscated",
+            "stopMonth": ""
+          },
+          {
+            "pattern": "obfuscated",
+            "stopMonth": ""
+          },
+          {
+            "pattern": "daily",
+            "stopMonth": ""
+          }
+        ],
+        "debtCollectors": []
+      },
+      "resultSha256": "8765bc31be95c162bbcc21e4aa32afee160e7e11fa0a8a26104b14d42386b9dd",
+      "htmlSha256": "cde10aebeb93aede61305baf66c70f1d343546e29cbbf67d7b71ab1d9a7c0e4f"
+    },
+    {
+      "name": "light-weekly-overdraft",
+      "config": {
+        "bizName": "",
+        "ownerName": "",
+        "bank": "random",
+        "lastMonth": "2024-03",
+        "numMonths": 3,
+        "revenue": "light",
+        "balanceTier": "low",
+        "allowOverdraft": true,
+        "seed": "light-weekly",
+        "breakMode": "none",
+        "financings": [
+          {
+            "pattern": "weekly",
+            "stopMonth": "2024-02"
+          }
+        ],
+        "debtCollectors": []
+      },
+      "resultSha256": "5728ffb7035a3e48770c9477239d6eb9278473b4911a1ec4a3e569a45ba28fb7",
+      "htmlSha256": "d053f041362537498fefb3a14cc1b4a3d6cbee58092adf8c63f120605284cb7d"
+    },
+    {
+      "name": "high-obfuscated",
+      "config": {
+        "bizName": "",
+        "ownerName": "",
+        "bank": "random",
+        "lastMonth": "2024-03",
+        "numMonths": 3,
+        "revenue": "high",
+        "balanceTier": "high",
+        "allowOverdraft": false,
+        "seed": "high-obfuscated",
+        "breakMode": "none",
+        "financings": [
+          {
+            "pattern": "obfuscated",
+            "stopMonth": ""
+          }
+        ],
+        "debtCollectors": []
+      },
+      "resultSha256": "30dbaa2d53ab34ddf89cfa574bd0c782c39332dd243daaa9190c25bb2f6258d3",
+      "htmlSha256": "3af0c2b4fa9e18ee839bfdcaaad2603778a9e95feda55916d65905cbbaaa4b94"
+    },
+    {
+      "name": "veryhigh-phantom",
+      "config": {
+        "bizName": "",
+        "ownerName": "",
+        "bank": "random",
+        "lastMonth": "2024-03",
+        "numMonths": 3,
+        "revenue": "veryhigh",
+        "balanceTier": "veryhigh",
+        "allowOverdraft": false,
+        "seed": "veryhigh-phantom",
+        "breakMode": "phantom",
+        "financings": [],
+        "debtCollectors": []
+      },
+      "resultSha256": "a111245f596d53838262c843bdc9cd8ea4f3ac95e62e8484aeefc72fc58019f9",
+      "htmlSha256": "999808b34e7db3e7eb397f61c65825b753c7dd2b1f6e147c8aa7204d9867e578"
+    },
+    {
+      "name": "enterprise-six",
+      "config": {
+        "bizName": "",
+        "ownerName": "",
+        "bank": "random",
+        "lastMonth": "2024-03",
+        "numMonths": 6,
+        "revenue": "enterprise",
+        "balanceTier": "mid",
+        "allowOverdraft": true,
+        "seed": "enterprise-six",
+        "breakMode": "none",
+        "financings": [
+          {
+            "pattern": "daily",
+            "stopMonth": ""
+          },
+          {
+            "pattern": "weekly",
+            "stopMonth": ""
+          },
+          {
+            "pattern": "obfuscated",
+            "stopMonth": ""
+          }
+        ],
+        "debtCollectors": []
+      },
+      "resultSha256": "0e9d30647a9bc6607282f13aaf44ee1b5d14a68b3eb90987c67a430e52dc7f9e",
+      "htmlSha256": "85fc1fc8df348d4c79c8e455a459e46430824bf720913d1d2b9872ffebb48f69"
+    },
+    {
+      "name": "misstated-aliases",
+      "config": {
+        "bizName": "",
+        "ownerName": "",
+        "bank": "random",
+        "lastMonth": "2024-03",
+        "numMonths": 3,
+        "revenue": "moderate",
+        "balanceTier": "mid",
+        "allowOverdraft": false,
+        "seed": "misstated-collectors",
+        "breakMode": "misstated",
+        "financings": [],
+        "debtCollectors": [
+          {
+            "name": "Example Delta Recovery",
+            "statementName": "alias:Example Delta / 202-555-0104"
+          },
+          {
+            "name": "Example Alder Recovery",
+            "statementName": "alias:Example Alder Recov"
+          },
+          {
+            "name": "Example Cedar & Pine",
+            "statementName": "canonical"
+          }
+        ]
+      },
+      "resultSha256": "e684f58051e953ddb2c270b5699b3ce17835b69bef5fd97c9584ff23509e1e18",
+      "htmlSha256": "1f310cdcb8496eccfec8cceb412b9fcca7e6e1f6793f49c56a55aaa8fb820250"
+    },
+    {
+      "name": "random-collectors-corruption",
+      "config": {
+        "bizName": "",
+        "ownerName": "",
+        "bank": "random",
+        "lastMonth": "2024-03",
+        "numMonths": 3,
+        "revenue": "moderate",
+        "balanceTier": "mid",
+        "allowOverdraft": false,
+        "seed": "collectors-🚀-é",
+        "breakMode": "random",
+        "financings": [],
+        "debtCollectors": [
+          {
+            "name": "random",
+            "statementName": "random"
+          },
+          {
+            "name": "Example Alder Recovery",
+            "statementName": "random"
+          },
+          {
+            "name": "random",
+            "statementName": "canonical"
+          }
+        ]
+      },
+      "resultSha256": "ca8abedb3880ec463d655f061803cbb7800f032c4ada9bce34d0596a59342495",
+      "htmlSha256": "596e46c037ca8808b333a86c5aa31946102f3368fe92f8248a40647b190ee6cb"
+    },
+    {
+      "name": "one-statement-html",
+      "config": {
+        "bizName": "A & B <script>\"test\"</script>",
+        "ownerName": "O'Neil <Owner>",
+        "bank": "0",
+        "lastMonth": "2024-02",
+        "numMonths": 1,
+        "revenue": "moderate",
+        "balanceTier": "mid",
+        "allowOverdraft": false,
+        "seed": "literal",
+        "breakMode": "none",
+        "financings": [],
+        "debtCollectors": []
+      },
+      "resultSha256": "2bfedbd037a93a44a44d20efc38fb901193163ecce880382a6de6d4e10ca59a0",
+      "htmlSha256": "7d3098079e13457f83ed4a9f90964816a875b1a08fb29e3eeef95ab4f047ec5a"
+    },
+    {
+      "name": "two-year-boundary",
+      "config": {
+        "bizName": "",
+        "ownerName": "",
+        "bank": "random",
+        "lastMonth": "2025-01",
+        "numMonths": 2,
+        "revenue": "moderate",
+        "balanceTier": "mid",
+        "allowOverdraft": false,
+        "seed": "year-boundary",
+        "breakMode": "none",
+        "financings": [],
+        "debtCollectors": []
+      },
+      "resultSha256": "b762c812021f230435fa311f273fd63eabf3d3ae1dfcb704a82f6300d194db25",
+      "htmlSha256": "4d51756b5dc21b6a6b1684254ee7ca73a0d081aa30970ffe2f44ba64770e2695"
+    },
+    {
+      "name": "four-bank-choice",
+      "config": {
+        "bizName": "",
+        "ownerName": "",
+        "bank": "1",
+        "lastMonth": "2024-03",
+        "numMonths": 4,
+        "revenue": "moderate",
+        "balanceTier": "mid",
+        "allowOverdraft": true,
+        "seed": "four-bank",
+        "breakMode": "none",
+        "financings": [],
+        "debtCollectors": []
+      },
+      "resultSha256": "62065fa90787a4c0709934e5e43dccd65f13d469c7bfde3c73439bc2f6071a81",
+      "htmlSha256": "4d9f114cbad2fcfeac04fcb3845fa798d50634f259224183b0bc30286a09f282"
+    },
+    {
+      "name": "non-leap-century",
+      "config": {
+        "bizName": "",
+        "ownerName": "",
+        "bank": "random",
+        "lastMonth": "1900-03",
+        "numMonths": 3,
+        "revenue": "moderate",
+        "balanceTier": "mid",
+        "allowOverdraft": false,
+        "seed": "calendar-1900",
+        "breakMode": "none",
+        "financings": [],
+        "debtCollectors": []
+      },
+      "resultSha256": "18c6db22979c716f5a4274a38e0dfa5c60f5ae92fd73e22c711cafed6ffceabb",
+      "htmlSha256": "6ef0167f83ca4475e83301df3ac6a8fa1b3b8abe8d359792d1febc7abdbef065"
+    }
+  ],
+  "application": [
+    {
+      "name": "one-owner-default",
+      "config": {
+        "bizName": "",
+        "ownerCount": 1,
+        "owners": [
+          {
+            "name": "",
+            "percentage": ""
+          }
+        ],
+        "applicationDate": "2024-02-29",
+        "seed": "application-baseline"
+      },
+      "resultSha256": "6a791fd5d08d2d4b60c02d00add0395f6ebabf7c796384645815761139c3b082",
+      "htmlSha256": "8f6f89551ca18b1646cf1b7a16c28a7e1e23ce6473131ebc771e824be55771ee"
+    },
+    {
+      "name": "two-automatic",
+      "config": {
+        "bizName": "",
+        "ownerCount": 2,
+        "owners": [
+          {
+            "name": "",
+            "percentage": ""
+          },
+          {
+            "name": "",
+            "percentage": ""
+          }
+        ],
+        "applicationDate": "2024-02-29",
+        "seed": "two-auto"
+      },
+      "resultSha256": "0778259afc65b57f3e4dc960ea2f4b40abb97c4eea42da0785d19a03ae3bed43",
+      "htmlSha256": "89c4c3e6a9c323ee12bb04441264bd99b61f8cd8b97d078da2fbb2196675b2b7"
+    },
+    {
+      "name": "three-mixed",
+      "config": {
+        "bizName": "",
+        "ownerCount": 3,
+        "owners": [
+          {
+            "name": "Jane Doe",
+            "percentage": "45.25"
+          },
+          {
+            "name": "Morgan Blake",
+            "percentage": "30"
+          },
+          {
+            "name": "Alex Reed",
+            "percentage": ""
+          }
+        ],
+        "applicationDate": "2024-02-29",
+        "seed": "three-mixed"
+      },
+      "resultSha256": "bee362de1d361472ef4cc59203d7f7173a549df74c1a2ad87ff7931f943ec1fb",
+      "htmlSha256": "b0f9591179809afef67358135f1eecbf78b446d09dc5af1fb5df806913e27a81"
+    },
+    {
+      "name": "four-html",
+      "config": {
+        "bizName": "A & B <Business> \"LLC\"",
+        "ownerCount": 4,
+        "owners": [
+          {
+            "name": "O'Neil & Co",
+            "percentage": "25"
+          },
+          {
+            "name": "<script>alert(1)</script>",
+            "percentage": "25"
+          },
+          {
+            "name": "Zoë García",
+            "percentage": "25"
+          },
+          {
+            "name": "Li",
+            "percentage": "25"
+          }
+        ],
+        "applicationDate": "2024-02-29",
+        "seed": "four-🚀-é"
+      },
+      "resultSha256": "ac2603acfb98cd6a48e58f0ede5a00f9c1bc32fbda1e986a50ef3757170ce318",
+      "htmlSha256": "19c33931ff3d26bf0877ca37ba44025afd5418b04b89d4de3a46695ddcf4ca56"
+    },
+    {
+      "name": "partial-owner",
+      "config": {
+        "bizName": "",
+        "ownerCount": 1,
+        "owners": [
+          {
+            "name": "Pat Kim",
+            "percentage": ".5"
+          }
+        ],
+        "applicationDate": "2025-01-01",
+        "seed": "partial-owner"
+      },
+      "resultSha256": "17aae52dc00eb016db39a974703defe7be6cea5a73be062320195afe46fb0db7",
+      "htmlSha256": "b6f1522b13934153b253ff36647e2c3bf0a1bf4dd9ef86b02777f8a153a70273"
+    },
+    {
+      "name": "minimum-share",
+      "config": {
+        "bizName": "",
+        "ownerCount": 4,
+        "owners": [
+          {
+            "name": "",
+            "percentage": "99.97"
+          },
+          {
+            "name": "",
+            "percentage": ""
+          },
+          {
+            "name": "",
+            "percentage": ""
+          },
+          {
+            "name": "",
+            "percentage": ""
+          }
+        ],
+        "applicationDate": "1900-01-01",
+        "seed": "minimum-share"
+      },
+      "resultSha256": "f072b4b2a1bf0432943f3cf52fc255b7feecffa346f806b091b2d7679babe629",
+      "htmlSha256": "af72cdf0f4626665d3dad25bdd6598a1d46b26eea1885b035d174e70fa784baa"
+    },
+    {
+      "name": "manual-subtotal",
+      "config": {
+        "bizName": "",
+        "ownerCount": 2,
+        "owners": [
+          {
+            "name": "Casey West",
+            "percentage": "10."
+          },
+          {
+            "name": "Dee North",
+            "percentage": "15.25"
+          }
+        ],
+        "applicationDate": "2024-02-29",
+        "seed": "subtotal"
+      },
+      "resultSha256": "9ae640b11439b57dd22da81e2bd7b1884aa9a732301c1ef2d3f3b454625c1bdb",
+      "htmlSha256": "b1744ccba4b790b69d9dc8d8a705d6a31906a8b0d17e40251a29fa5a0f4eea09"
+    },
+    {
+      "name": "max-date",
+      "config": {
+        "bizName": "",
+        "ownerCount": 1,
+        "owners": [
+          {
+            "name": "",
+            "percentage": ""
+          }
+        ],
+        "applicationDate": "9999-12-31",
+        "seed": "max-date"
+      },
+      "resultSha256": "ad640c3e7a25ca0905453ed8e6defc3429b5f51fa50593c3162693c8dd86ea37",
+      "htmlSha256": "e5100e496353f67648a4442f7f088927dae7fbe1bc3480430a3f80bc598b3009"
+    }
+  ]
+}

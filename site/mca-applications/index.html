@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MCA Application Generator</title>
+  <link rel="stylesheet" href="../assets/css/shared.css">
+  <link rel="stylesheet" href="../assets/css/mca-applications.css">
+</head>
+
+<body>
+  <div class="app">
+    <aside class="controls" aria-label="Application generator settings">
+      <div class="eyebrow">Synthetic document tools</div>
+      <h1>MCA application generator</h1>
+      <p class="intro">Create synthetic signed applications for testing. All business, personal, and signature data is
+        fictitious.</p>
+      <form id="generatorForm" novalidate>
+        <fieldset id="settings" aria-label="Application settings">
+          <fieldset class="control-section">
+            <legend>Business &amp; owners</legend>
+            <div class="fields">
+              <div class="field"><label for="bizNameOverride">Business name</label><input id="bizNameOverride"
+                  type="text" placeholder="Random business" maxlength="160"></div>
+              <div class="field"><label for="ownerCount">Owners</label><select id="ownerCount"
+                  aria-describedby="countHint"></select>
+                <p class="hint" id="countHint">Every owner signs the application. Leave names blank to generate them.</p>
+              </div>
+              <div id="ownerControls"></div>
+              <p class="hint" id="ownershipHint">Each share must be greater than 0%, with up to two decimal places.
+                Total ownership cannot exceed 100%. Blank shares divide the remaining ownership automatically.</p>
+              <p class="hint" id="ownershipStatus" role="status" aria-live="polite"></p>
+            </div>
+          </fieldset>
+          <fieldset class="control-section">
+            <legend>Application &amp; reproduction</legend>
+            <div class="fields">
+              <div class="field"><label for="applicationDate">Application date</label><input id="applicationDate"
+                  type="date" min="1900-01-01" max="9999-12-31" required aria-describedby="dateHint">
+                <p class="hint" id="dateHint">Also used as the signature date.</p>
+              </div>
+              <div class="field"><label for="seed">Seed <span class="hint">(optional)</span></label><input id="seed"
+                  type="text" placeholder="Blank for a fresh random application" maxlength="200"
+                  aria-describedby="seedHint">
+                <p class="hint" id="seedHint">Reuse a seed and the same settings to recreate application data in this
+                  version.</p>
+              </div>
+            </div>
+          </fieldset>
+          <div class="generate-bar"><button class="primary" id="btnGen" type="submit">Generate application</button>
+          </div>
+        </fieldset>
+      </form>
+    </aside>
+    <main class="workspace">
+      <header class="toolbar">
+        <a class="all-tools" href="../">&larr; All tools</a>
+        <div class="toolbar-top">
+          <h2>Application preview</h2>
+          <div class="actions"><button id="btnPrint" type="button" disabled>Print / Save PDF</button></div>
+        </div>
+        <p class="status" id="status" role="status" aria-live="polite">Preparing application…</p>
+        <p class="error" id="error" role="alert"></p>
+        <p class="seed-info" id="seedInfo" hidden>Generated seed: <code id="generatedSeed"></code></p>
+        <p class="hint">Use your browser’s print dialog to save the full application as a PDF.</p>
+      </header>
+      <div class="preview-scroll" role="region" aria-label="Application preview; scroll horizontally on small screens"
+        tabindex="0">
+        <div class="preview">
+          <article class="page" id="page" aria-label="Synthetic signed MCA application"></article>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script type="module" src="../assets/js/mca-applications/main.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bank Statement Generator</title>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <link rel="stylesheet" href="../assets/css/shared.css">
+  <link rel="stylesheet" href="../assets/css/bank-statements.css">
+</head>
+
+<body>
+  <div class="app">
+    <aside class="controls" aria-label="Generator settings">
+      <div class="eyebrow">Synthetic document tools</div>
+      <h1>Bank statement generator</h1>
+      <p class="intro">Create synthetic statements for testing. All business, account, and transaction data is
+        fictitious.</p>
+      <form id="generatorForm" novalidate>
+        <fieldset id="settings" aria-label="Statement settings">
+          <fieldset class="control-section">
+            <legend>Business</legend>
+            <div class="fields">
+              <div class="field"><label for="bizName">Business name</label><input id="bizName" type="text"
+                  placeholder="Random business" maxlength="160"></div>
+              <div class="field"><label for="ownerName">Account holder</label><input id="ownerName" type="text"
+                  placeholder="Random account holder" maxlength="160"></div>
+            </div>
+          </fieldset>
+          <fieldset class="control-section">
+            <legend>Bank &amp; period</legend>
+            <div class="fields">
+              <div class="field"><label for="bank">Bank</label><select id="bank"></select></div>
+              <div class="two-columns">
+                <div class="field"><label for="lastMonth">Most recent month</label><input id="lastMonth" type="month"
+                    min="1900-01" max="9999-12" required></div>
+                <div class="field"><label for="numMonths">Statements</label><select id="numMonths"></select></div>
+              </div>
+            </div>
+          </fieldset>
+          <fieldset class="control-section">
+            <legend>Financial profile</legend>
+            <div class="fields">
+              <div class="field"><label for="revenue">Revenue level</label><select id="revenue"></select></div>
+              <div class="field"><label for="balanceTier">Starting balance</label><select id="balanceTier"
+                  aria-describedby="balanceHint"></select>
+                <p class="hint" id="balanceHint">Sets the first opening balance. Later balances follow the transactions.
+                </p>
+              </div>
+              <div>
+                <div class="check"><input type="checkbox" id="overdrafts" aria-describedby="overdraftHint"><label
+                    for="overdrafts">Allow discretionary spending to overdraw</label></div>
+                <p class="hint" id="overdraftHint">Financing and debt collector payments always post and may still
+                  overdraw the account.</p>
+              </div>
+            </div>
+          </fieldset>
+          <fieldset class="control-section">
+            <legend>Financings</legend>
+            <div class="fields">
+              <div class="field"><label for="financings">Existing financings</label><select id="financings"></select>
+              </div>
+              <div id="financingControls"></div>
+              <p class="hint" id="financingNotice" role="status" aria-live="polite"></p>
+              <details>
+                <summary>About repayment patterns</summary>
+                <p>Daily payments post on business days; weekly payments post on Wednesdays. Obfuscated payments combine
+                  differently sized obligations, drifting dates, occasional one-offs, and a possible lump sum to test
+                  payment-frequency inference. A financing posts through its selected stop month.</p>
+              </details>
+            </div>
+          </fieldset>
+          <fieldset class="control-section">
+            <legend>Debt collectors</legend>
+            <div class="fields">
+              <div class="check"><input type="checkbox" id="includeDebtCollectors"
+                  aria-controls="debtCollectorSettings"><label for="includeDebtCollectors">Include debt
+                  collectors</label></div>
+              <fieldset id="debtCollectorSettings" aria-label="Debt collector settings" hidden disabled>
+                <div class="fields">
+                  <div class="field"><label for="debtCollectorCount">Number of collectors</label><select
+                      id="debtCollectorCount"></select></div>
+                  <div id="debtCollectorControls"></div>
+                  <p class="hint" id="debtCollectorNotice" role="status" aria-live="polite"></p>
+                  <p class="hint">Each collector gets one ACH debit per month. Names and payment amounts stay the same
+                    across the set. Random selects distinct agencies.</p>
+                </div>
+              </fieldset>
+            </div>
+          </fieldset>
+          <fieldset class="control-section">
+            <legend>Testing &amp; reproduction</legend>
+            <div class="fields">
+              <div class="field"><label for="breakMode">Reconciliation</label><select id="breakMode"
+                  aria-describedby="breakHint"></select>
+                <p class="hint" id="breakHint">Break modes alter only the latest statement.</p>
+              </div>
+              <details>
+                <summary>About reconciliation breaks</summary>
+                <p>Misstated changes one printed transaction amount while retaining the true totals. Unlisted balance
+                  shift changes the printed ending balance and daily balances without a matching transaction. Both
+                  create an intentional mismatch for reconciliation testing.</p>
+              </details>
+              <div class="field"><label for="seed">Seed <span class="hint">(optional)</span></label><input id="seed"
+                  type="text" placeholder="Blank for a fresh random set" maxlength="200" aria-describedby="seedHint">
+                <p class="hint" id="seedHint">Reuse a seed and the same settings to recreate statement data in this
+                  version.</p>
+              </div>
+            </div>
+          </fieldset>
+          <div class="generate-bar"><button class="primary" id="btnGen" type="submit">Generate statements</button></div>
+        </fieldset>
+      </form>
+    </aside>
+    <main class="workspace">
+      <header class="toolbar">
+        <a class="all-tools" href="../">&larr; All tools</a>
+        <div class="toolbar-top">
+          <h2>Statement preview</h2>
+          <div class="actions"><button id="btnExport" type="button" disabled>Download ZIP</button><button id="btnPrint"
+              type="button" disabled>Print / Save PDF</button></div>
+        </div>
+        <p class="status" id="status" role="status" aria-live="polite">Preparing statements…</p>
+        <p class="error" id="error" role="alert"></p>
+        <p class="seed-info" id="seedInfo" hidden>Generated seed: <code id="generatedSeed"></code></p>
+        <p class="hint">ZIP contains one PDF per statement. Print / Save PDF combines the full set through your browser.
+        </p>
+      </header>
+      <div class="preview-scroll" role="region" aria-label="Statement preview; scroll horizontally on small screens"
+        tabindex="0">
+        <div class="preview" id="preview"></div>
+      </div>
+    </main>
+  </div>
+  <script type="module" src="../assets/js/bank-statements/main.js"></script>
+</body>
+
+</html>
