@@ -1,5 +1,5 @@
 import { createSeed } from '../shared/random.js';
-import { pad } from '../shared/formatting.js';
+import { pad, formatMoney } from '../shared/formatting.js';
 import { fillSelect, createFeedback } from '../shared/ui.js';
 import {
   BANKS, STATEMENT_COUNTS, REVENUE_TIERS, BALANCE_TIERS, FINANCING_PATTERNS,
@@ -152,7 +152,8 @@ function readyStatus() {
   if (!state.result) return 'Choose your settings and generate statements.';
   const statements = state.result.statements;
   const broken = statements.at(-1).breakInfo;
-  return `${statements.length} statement${statements.length === 1 ? '' : 's'} · ${statements[0].month.label} – ${statements.at(-1).month.label} · ${broken ? 'Intentional mismatch in latest statement' : 'Balances reconcile'}`;
+  const averageDepositsCents = Math.round(statements.reduce((sum, statement) => sum + statement.totals.deposits, 0) / statements.length);
+  return `${statements.length} statement${statements.length === 1 ? '' : 's'} · ${statements[0].month.label} – ${statements.at(-1).month.label} · Avg monthly deposits: ${formatMoney(averageDepositsCents)} · ${broken ? 'Intentional mismatch in latest statement' : 'Balances reconcile'}`;
 }
 
 function draftChanged(event) {

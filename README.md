@@ -67,6 +67,17 @@ existing cdnjs URLs for ZIP/PDF export. Its browser printing remains available i
 those libraries cannot load. The application and landing pages have no external
 runtime dependencies. No backend, persistence, or integration service is added.
 
+## Revenue Scenarios
+
+Choose **Below $10k/month** in the bank generator’s **Revenue level** dropdown to
+keep average monthly deposits below $10,000 for any supported statement count.
+This tier allows at most one $100–$300 deposit per calendar day, so even a 31-day
+month totals no more than $9,300. Each month stays below the threshold individually.
+The combined deposits across several months may exceed $10,000.
+
+The preview reports total ledger deposits divided by the number of statements;
+starting balances are excluded. Existing revenue tiers retain their behavior.
+
 ## Collector Catalog
 
 Ten fictional collector agencies and their statement aliases are embedded in the

@@ -94,6 +94,57 @@ test('required payments post through persistently negative balances and inactive
   assert.ok(inactiveDays > 0);
 });
 
+test('below $10k monthly deposits holds across review periods, seeds, repayments, and break modes', () => {
+  const limitCents = 1000000;
+  const calendarEnds = ['2024-02', '2025-02', '2025-01', '2025-04'];
+  for (const numMonths of STATEMENT_COUNTS) {
+    for (let seed = 0; seed < 20; seed++) {
+      for (const { value: breakMode } of BREAK_MODES) {
+        for (const allowOverdraft of [false, true]) {
+          const config = deepFreeze(bankConfig({ revenue: 'below10k', numMonths,
+            lastMonth: calendarEnds[seed % calendarEnds.length], seed: `below10k-${seed}`,
+            balanceTier: seed % 2 ? 'veryhigh' : 'verylow', allowOverdraft, breakMode,
+            financings: FINANCING_PATTERNS.map(({ value: pattern }) => ({ pattern, stopMonth: '' })),
+            debtCollectors: [{ name: 'random', statementName: 'random' }],
+          }));
+          const result = generateStatements(config);
+          assertLedger(result);
+          assertCollectors(result);
+          const totalDeposits = result.statements.reduce((sum, statement) => sum + statement.totals.deposits, 0);
+          assert.ok(totalDeposits < limitCents * numMonths);
+          for (const statement of result.statements) {
+            assert.ok(statement.totals.deposits < limitCents);
+            // OCR sees transaction lines as well as totals. A deliberately misstated
+            // deposit still has enough headroom to stay under the monthly threshold.
+            const depositsTable = renderStatement(result, statement).match(/<table class="tx">([\s\S]*?)<\/table>/)[1];
+            const printedDeposits = [...depositsTable.matchAll(/<tr><td class="date-column">[\s\S]*?<td class="amount">([^<]+)<\/td><\/tr>/g)]
+              .reduce((sum, row) => sum + readMoney(row[1]), 0);
+            assert.ok(printedDeposits < limitCents);
+          }
+          assert.deepEqual(generateStatements(config), result);
+        }
+      }
+    }
+  }
+});
+
+test('below $10k tier stays under the limit even with maximum deposits every calendar day', () => {
+  for (const lastMonth of ['2024-02', '2025-02', '2025-01', '2025-04']) {
+    for (const numMonths of STATEMENT_COUNTS) {
+      const result = generateStatements(bankConfig({ revenue: 'below10k', lastMonth, numMonths }), () => 0.999999999);
+      assertLedger(result);
+      for (const statement of result.statements) {
+        assert.equal(statement.transactions.filter(transaction => transaction.category === 'deposits').length, statement.month.days);
+        assert.equal(statement.totals.deposits, statement.month.days * 30000);
+        assert.ok(statement.totals.deposits < 1000000);
+      }
+    }
+  }
+  const result = generateStatements(bankConfig({ revenue: 'below10k', numMonths: 6 }), () => 0);
+  assertLedger(result);
+  assert.ok(result.statements.every(statement => statement.totals.deposits === 0));
+});
+
 test('calendar ranges preserve supported counts, leap years, and year transitions', () => {
   assert.deepEqual(getMonths('2000-03', 3).map(month => month.days), [31, 29, 31]);
   assert.deepEqual(getMonths('1900-03', 3).map(month => month.days), [31, 28, 31]);

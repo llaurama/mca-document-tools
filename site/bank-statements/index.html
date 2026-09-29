@@ -44,7 +44,10 @@
           <fieldset class="control-section">
             <legend>Financial profile</legend>
             <div class="fields">
-              <div class="field"><label for="revenue">Revenue level</label><select id="revenue"></select></div>
+              <div class="field"><label for="revenue">Revenue level</label><select id="revenue" aria-describedby="revenueHint"></select>
+                <p class="hint" id="revenueHint">Below $10k/month keeps each statement’s deposits under $10,000.
+                  Average monthly deposits = total deposits ÷ statement count; starting balances are excluded.</p>
+              </div>
               <div class="field"><label for="balanceTier">Starting balance</label><select id="balanceTier"
                   aria-describedby="balanceHint"></select>
                 <p class="hint" id="balanceHint">Sets the first opening balance. Later balances follow the transactions.

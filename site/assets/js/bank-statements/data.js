@@ -89,6 +89,8 @@ const DEBT_COLLECTOR_COUNTS = [1, 2, 3];
 
 /* ---------------- Configuration and data contracts ---------------- */
 const REVENUE_TIERS = {
+  // At most one $300 deposit per calendar day: even 31 days total only $9,300.
+  below10k: { label: "Below $10k/month", dayMin: 100, dayMax: 300, depsPerDay: [0, 1] },
   verylight: { label: "Very Light ($300–1.5k/day)", dayMin: 300, dayMax: 1500, depsPerDay: [0, 1] },
   light: { label: "Light ($1.5k–5k/day)", dayMin: 1500, dayMax: 5000, depsPerDay: [0, 2] },
   moderate: { label: "Moderate ($4k–12k/day)", dayMin: 4000, dayMax: 12000, depsPerDay: [1, 3] },
