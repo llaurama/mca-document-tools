@@ -114,7 +114,8 @@ function buildFinancings(config, rng) {
 function financingDebits(financing, month, monthIndex, rng) {
   if (financing.stopMonth && month.key > financing.stopMonth) return [];
   const debits = [];
-  const add = (day, amountCents) => debits.push({ day, category: "financing", label: "ACH Debit", detail: `To ${financing.funder}`, ref: financing.ref, amountCents });
+  // MoneyThumb recognizes these fictional funders as MCAs by the "Merchant Advance" phrase, not by name.
+  const add = (day, amountCents) => debits.push({ day, category: "financing", label: "ACH Debit", detail: `To ${financing.funder} - Merchant Advance Pmt`, ref: financing.ref, amountCents });
   if (financing.pattern !== "obfuscated") {
     for (let day = 1; day <= month.days; day++) {
       if (financing.pattern === "daily" ? isBusinessDay(month, day) : weekday(month, day) === 3) add(day, financing.amountCents);

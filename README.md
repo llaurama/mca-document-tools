@@ -91,6 +91,10 @@ The bank-statement layout is intended for MoneyThumb OCR testing. No MoneyThumb
 API integration is included. The automated tests validate generated arithmetic,
 document rendering, and export behavior; they do not verify OCR classification.
 
+Every financing debit reads `To <funder> - Merchant Advance Pmt`. MoneyThumb doesn't know
+the fictional funder names, so it relies on the "Merchant Advance" phrase to tag the debits
+as MCA payments. Without the phrase, no financing reaches the bank summary.
+
 ## Validation
 
 The regression suite checks exact seeded data/document parity, shared randomness,

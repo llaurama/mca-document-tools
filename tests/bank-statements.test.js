@@ -177,6 +177,15 @@ test('financing stop month is inclusive for every repayment pattern', () => {
   assert.throws(() => validateConfig(bankConfig({ financings: [{ pattern: 'daily', stopMonth: '2023-12' }] })), { field: 'financings' });
 });
 
+test('every financing debit names the funder and carries the MoneyThumb MCA phrase', () => {
+  for (const { value: pattern } of FINANCING_PATTERNS) {
+    const result = generateStatements(bankConfig({ financings: [{ pattern, stopMonth: '' }] }));
+    const debits = result.statements.flatMap(statement => statement.transactions.filter(transaction => transaction.category === 'financing'));
+    assert.ok(debits.length > 0);
+    assert.ok(debits.every(debit => /^To .+ - Merchant Advance Pmt$/.test(debit.detail)));
+  }
+});
+
 test('disabled collectors consume no random draws', () => {
   const config = bankConfig();
   const withoutProperty = { ...config };
