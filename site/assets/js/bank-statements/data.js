@@ -24,6 +24,22 @@ const INSURANCE = ["PROGRESSIVE COMMERCIAL", "STATE FARM BUS INS", "HARTFORD INS
 const LEASES = ["PAWNEE LEASING CORP", "NAVITAS CREDIT CORP", "US BANK EQUIP FINANCE", "BALBOA CAPITAL"];
 const CC_PAYMENTS = ["CHASE CARD SERVICES", "AMEX EPAYMENT", "CAPITAL ONE CRCARDPMT", "CITI CARD ONLINE PMT"];
 
+const PERSONAL_DEPOSITS = ["ZELLE PAYMENT", "VENMO CASHOUT", "CASH APP TRANSFER", "APPLE CASH TRANSFER", "PAYROLL DIRECT DEP", "MOBILE CHECK DEPOSIT"];
+const PERSONAL_VENDORS = ["KROGER #0412", "WALMART SUPERCENTER", "TARGET", "ALDI", "TRADER JOES", "COSTCO WHSE", "SHELL OIL", "SPEEDWAY", "CHICK-FIL-A", "CHIPOTLE ONLINE", "STARBUCKS", "CVS PHARMACY", "WALGREENS", "DOLLAR GENERAL"];
+const PERSONAL_SUBSCRIPTIONS = ["NETFLIX.COM", "SPOTIFY USA", "HULU", "DISNEY PLUS", "YOUTUBE PREMIUM", "VERIZON WIRELESS", "T-MOBILE AUTOPAY", "PLANET FITNESS", "APPLE.COM/BILL"];
+const PERSONAL_HOUSING = ["LANDMARK APARTMENTS RENT", "PINE RIDGE PROPERTY MGMT", "FIRST HORIZON MORTGAGE", "ROCKET MORTGAGE"];
+const PERSONAL_AUTO_LOANS = ["TOYOTA FINANCIAL SVCS", "HONDA FINANCIAL", "CAPITAL ONE AUTO PMT", "AMERICREDIT"];
+const PERSONAL_STUDENT_LOANS = ["NELNET STUDENT LOAN", "MOHELA STUDENT LN", "AIDVANTAGE"];
+const PERSONAL_CARDS = ["DISCOVER E-PAYMENT", "SYNCHRONY BANK PMT", "BARCLAYCARD US", "WELLS FARGO CARD PMT"];
+const PERSONAL_UTILITIES = ["MUNICIPAL WATER & SEWER", "COLUMBIA GAS", "DUKE ENERGY", "XFINITY INTERNET"];
+const PERSONAL_INSURANCE = ["GEICO AUTO", "STATE FARM AUTO", "LEMONADE RENTERS", "ALLSTATE"];
+// [pool, min, max] absolute dollars: personal spend is not scaled by revenue tier.
+const PERSONAL_RECURRING = [
+  [PERSONAL_HOUSING, 900, 2200], [PERSONAL_AUTO_LOANS, 250, 650], [PERSONAL_STUDENT_LOANS, 80, 400],
+  [PERSONAL_CARDS, 40, 600], [PERSONAL_UTILITIES, 40, 250], [PERSONAL_INSURANCE, 60, 260],
+];
+const PERSONAL_BANK_TAGS = { Meridian: "Personal Banking", Coastline: "Personal Banking", Ironbridge: "Consumer Bank", Highline: "Community Bank" };
+
 const FUNDERS = ["Apex Capital Advance", "Vantage Funding Group", "Bridgepoint Capital Partners", "Swift Business Capital", "Keystone Merchant Funding", "Lighthouse Advance Co", "Summit Ridge Capital"];
 
 // Fictional collector names and statement aliases for sample transactions.
@@ -98,6 +114,20 @@ const REVENUE_TIERS = {
   veryhigh: { label: "Very High ($25k–60k/day)", dayMin: 25000, dayMax: 60000, depsPerDay: [2, 5] },
   enterprise: { label: "Enterprise ($50k–100k/day)", dayMin: 50000, dayMax: 100000, depsPerDay: [3, 6] },
 };
+const ACCOUNT_TYPES = {
+  business: {
+    label: "Business account", title: "Business Bank Statement", accountLabel: "Business Checking",
+    revenueTiers: Object.keys(REVENUE_TIERS), personal: false,
+  },
+  personalCommingled: {
+    label: "Personal, business income commingled", title: "Personal Bank Statement", accountLabel: "Personal Checking",
+    revenueTiers: Object.keys(REVENUE_TIERS), personal: true,
+  },
+  personalOnly: {
+    label: "Personal, personal income only", title: "Personal Bank Statement", accountLabel: "Personal Checking",
+    revenueTiers: ["below10k", "verylight"], personal: true,
+  },
+};
 const BALANCE_TIERS = {
   verylow: { label: "Very Low ($500–2k)", min: 500, max: 2000 },
   low: { label: "Low ($1k–5k)", min: 1000, max: 5000 },
@@ -127,7 +157,9 @@ const CATEGORY_BY_KEY = Object.fromEntries(CATEGORIES.map(category => [category.
 const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 /**
- * Config: {bizName, ownerName, bank, lastMonth, numMonths, revenue, balanceTier,
+ * Config: {accountType?: "business" (default) | "personalCommingled" | "personalOnly",
+ *   dba?: boolean (default false; personal types only), bizName, ownerName, bank, lastMonth,
+ *   numMonths, revenue (must be in ACCOUNT_TYPES[accountType].revenueTiers), balanceTier,
  *   allowOverdraft, seed, breakMode, financings: [{pattern, stopMonth}],
  *   debtCollectors: [{name: "random" | canonicalName,
  *     statementName: "canonical" | "random" | "alias:<catalog alias>"}]}.
@@ -137,7 +169,10 @@ const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Se
  * Statement: {month, openingCents, closingCents, transactions, dailyBalances,
  *   totals: {deposits, card, ach, financing}, breakInfo}.
  * Result: {seed, bank, business: {legal, ownerName, acct, addr}, statements,
- *   debtCollectors: [{name, statementName: resolvedPrintedName, amountCents, ref}]}.
+ *   debtCollectors: [{name, statementName: resolvedPrintedName, amountCents, ref}],
+ *   accountType?}. For personal types `business` holds the account holder identity
+ *   (`legal` is "" unless dba), `bank.tag` comes from PERSONAL_BANK_TAGS, and the result
+ *   carries `accountType`; business results omit that key so existing seeds stay identical.
  * All ledger values are integer cents. breakInfo describes presentation-only
  * corruption; the true transactions, totals and daily balances remain unchanged.
  */
@@ -146,6 +181,9 @@ const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Se
 export {
   BANKS, FIRST, LAST, BIZ_CORE, BIZ_KIND, STREETS, CITIES, PROCESSORS, PLATFORM_DEPOSITS,
   CUSTOMER_NAMES, VENDORS, SUBSCRIPTIONS, UTILITIES, INSURANCE, LEASES, CC_PAYMENTS, FUNDERS,
+  PERSONAL_DEPOSITS, PERSONAL_VENDORS, PERSONAL_SUBSCRIPTIONS, PERSONAL_HOUSING, PERSONAL_AUTO_LOANS,
+  PERSONAL_STUDENT_LOANS, PERSONAL_CARDS, PERSONAL_UTILITIES, PERSONAL_INSURANCE, PERSONAL_RECURRING,
+  PERSONAL_BANK_TAGS, ACCOUNT_TYPES,
   DEBT_COLLECTORS, DEBT_COLLECTOR_BY_NAME, DEBT_COLLECTOR_COUNTS, REVENUE_TIERS, BALANCE_TIERS,
   STATEMENT_COUNTS, FINANCING_PATTERNS, BREAK_MODES, CATEGORIES, CATEGORY_BY_KEY, MONTH_NAMES,
 };

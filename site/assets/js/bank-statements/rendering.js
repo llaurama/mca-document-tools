@@ -1,5 +1,5 @@
 import { formatMoney, escapeHtml } from '../shared/formatting.js';
-import { CATEGORIES, MONTH_NAMES } from './data.js';
+import { CATEGORIES, MONTH_NAMES, ACCOUNT_TYPES } from './data.js';
 
 function displayedClosing(statement) {
   return statement.closingCents + (statement.breakInfo?.mode === 'phantom' ? statement.breakInfo.deltaCents : 0);
@@ -47,6 +47,12 @@ function renderDailyBalances(statement) {
 
 function renderStatement(result, statement) {
   const { bank, business } = result;
+  const type = ACCOUNT_TYPES[result.accountType ?? 'business'];
+  const holder = escapeHtml(business.ownerName);
+  const legal = escapeHtml(business.legal);
+  const dba = business.legal ? `DBA ${legal}` : '';
+  const identityLine = type.personal ? (dba && `<div>${dba}</div>`) : `<div>${legal}</div>`;
+  const footerName = type.personal ? `${holder} ${dba}`.trim() : legal;
   const { month } = statement;
   const summary = CATEGORIES.map(category => {
     const count = statement.transactions.filter(transaction => transaction.category === category.key).length;
@@ -55,18 +61,18 @@ function renderStatement(result, statement) {
   }).join('');
   return `<article class="statement" aria-label="${escapeHtml(month.label)} statement" style="--accent:${escapeHtml(bank.accent)};--accent-lt:${escapeHtml(bank.accentLt)}">
     <header class="bank-header"><div class="bank-logo">${escapeHtml(bank.name)}<span class="tag">${escapeHtml(bank.tag)}</span></div>
-      <div class="bank-meta"><div class="doc-title">Business Bank Statement</div>Member FDIC &mdash; Synthetic Test Document</div></header>
-    <div class="addr-row"><div class="addr-block"><div class="name">${escapeHtml(business.ownerName)}</div><div>${escapeHtml(business.legal)}</div>
+      <div class="bank-meta"><div class="doc-title">${escapeHtml(type.title)}</div>Member FDIC &mdash; Synthetic Test Document</div></header>
+    <div class="addr-row"><div class="addr-block"><div class="name">${holder}</div>${identityLine}
       <div>${escapeHtml(business.addr.street)}</div><div>${escapeHtml(business.addr.city)}, ${escapeHtml(business.addr.state)} ${escapeHtml(business.addr.zip)}</div></div>
       <div class="period-block"><div><span class="k">Account Number:</span> <span class="v">${escapeHtml(business.acct)}</span></div>
       <div><span class="k">Statement Period:</span> <span class="v">${MONTH_NAMES[month.index]} 1, ${month.year} &ndash; ${MONTH_NAMES[month.index]} ${month.days}, ${month.year}</span></div>
-      <div><span class="k">Account Type:</span> <span class="v">Business Checking</span></div></div></div>
+      <div><span class="k">Account Type:</span> <span class="v">${escapeHtml(type.accountLabel)}</span></div></div></div>
     <section data-keep-start><h2 class="sec-head">Account Summary</h2><table class="summary"><tbody>
       <tr><td class="k">Beginning Balance</td><td class="amount">${formatMoney(statement.openingCents)}</td></tr>${summary}
       <tr class="total"><td>Ending Balance</td><td class="amount">${formatMoney(displayedClosing(statement))}</td></tr></tbody></table></section>
     ${CATEGORIES.map(category => renderTransactionSection(statement, category)).join('')}
     ${renderDailyBalances(statement)}
-    <footer class="foot">${escapeHtml(business.legal)} &mdash; Account ${escapeHtml(business.acct)} &mdash; ${escapeHtml(month.label)} Statement<br>
+    <footer class="foot">${footerName} &mdash; Account ${escapeHtml(business.acct)} &mdash; ${escapeHtml(month.label)} Statement<br>
       <span class="warn">SYNTHETIC TEST DOCUMENT.</span> All account, business, and transaction data on this page is fictitious and generated for testing purposes only. It does not represent any real bank, account, or individual.</footer>
   </article>`;
 }

@@ -4,6 +4,7 @@ import { configError } from '../shared/validation.js';
 import {
   BANKS, FIRST, LAST, BIZ_CORE, BIZ_KIND, STREETS, CITIES, PROCESSORS, PLATFORM_DEPOSITS,
   CUSTOMER_NAMES, VENDORS, SUBSCRIPTIONS, UTILITIES, INSURANCE, LEASES, CC_PAYMENTS, FUNDERS,
+  PERSONAL_DEPOSITS, PERSONAL_VENDORS, PERSONAL_SUBSCRIPTIONS, PERSONAL_RECURRING, PERSONAL_BANK_TAGS, ACCOUNT_TYPES,
   DEBT_COLLECTORS, DEBT_COLLECTOR_BY_NAME, DEBT_COLLECTOR_COUNTS, REVENUE_TIERS, BALANCE_TIERS,
   STATEMENT_COUNTS, FINANCING_PATTERNS, BREAK_MODES, CATEGORIES, CATEGORY_BY_KEY, MONTH_NAMES,
 } from './data.js';
@@ -39,6 +40,8 @@ function getMonths(lastMonth, numMonths) {
   });
 }
 
+const accountTypeOf = config => config.accountType === undefined ? "business" : config.accountType;
+
 function validateConfig(config) {
   const months = getMonths(config.lastMonth, config.numMonths);
   for (const field of ["bizName", "ownerName", "seed"]) {
@@ -46,7 +49,15 @@ function validateConfig(config) {
   }
   if (!config.seed.trim()) throw configError("seed", "A generation seed is required.");
   if (config.bank !== "random" && !BANKS.some((_, index) => String(index) === config.bank)) throw configError("bank", "Choose a bank from the list.");
+  const accountType = accountTypeOf(config);
+  if (!Object.hasOwn(ACCOUNT_TYPES, accountType)) throw configError("accountType", "Choose an account type.");
   if (!Object.hasOwn(REVENUE_TIERS, config.revenue)) throw configError("revenue", "Choose a revenue tier.");
+  const { label, revenueTiers, personal } = ACCOUNT_TYPES[accountType];
+  if (!revenueTiers.includes(config.revenue)) {
+    throw configError("revenue", `${label} supports only ${revenueTiers.map(tier => REVENUE_TIERS[tier].label).join(" or ")} revenue.`);
+  }
+  if (config.dba !== undefined && typeof config.dba !== "boolean") throw configError("dba", "Choose whether to show a DBA line.");
+  if (config.dba && !personal) throw configError("dba", "A DBA line applies only to personal accounts.");
   if (!Object.hasOwn(BALANCE_TIERS, config.balanceTier)) throw configError("balanceTier", "Choose a starting balance.");
   if (typeof config.allowOverdraft !== "boolean") throw configError("allowOverdraft", "Choose whether discretionary spending may overdraw.");
   if (!BREAK_MODES.some(mode => mode.value === config.breakMode)) throw configError("breakMode", "Choose a reconciliation mode.");
@@ -76,12 +87,15 @@ function validateConfig(config) {
 
 /* ---------------- Identity and financing generation ---------------- */
 function makeBusiness(config, rng) {
+  const { personal } = ACCOUNT_TYPES[accountTypeOf(config)];
   const legal = [pick(rng, BIZ_CORE), ...pick(rng, BIZ_KIND)].join(" ");
   const [city, state, zip] = pick(rng, CITIES);
   const street = `${randomInt(rng, 50, 9999)} ${pick(rng, STREETS)}`;
   const ownerName = `${pick(rng, FIRST)} ${pick(rng, LAST)}`.toUpperCase();
   const acct = `${randomInt(rng, 1, 9)}-${randomInt(rng, 100, 999)}-${randomInt(rng, 1000, 9999)}-${randomInt(rng, 1000, 9999)}`;
-  return { legal: config.bizName.trim() || legal, ownerName: config.ownerName.trim() || ownerName, acct, addr: { street, city, state, zip } };
+  // Personal statements print the holder only; the business name appears as a DBA line on request.
+  const printedLegal = personal && !config.dba ? "" : config.bizName.trim() || legal;
+  return { legal: printedLegal, ownerName: config.ownerName.trim() || ownerName, acct, addr: { street, city, state, zip } };
 }
 
 function spendScale(revenue) {
@@ -89,14 +103,23 @@ function spendScale(revenue) {
   return Math.max(0.4, (tier.dayMin + tier.dayMax) / 16000);
 }
 
+const businessProfile = {
+  depositSource: rng => rng() < 0.55 ? pick(rng, PLATFORM_DEPOSITS) : pick(rng, rng() < 0.5 ? PROCESSORS : CUSTOMER_NAMES),
+  vendors: VENDORS,
+  cardRange: [15, 450],
+  subscriptions: SUBSCRIPTIONS,
+  recurring: [[UTILITIES, 60, 350], [INSURANCE, 150, 900], [LEASES, 200, 1500], [CC_PAYMENTS, 100, 2500]],
+  spendScale,
+};
+// Absolute personal amounts fit Below $10k; richer tiers spend proportionally more instead of banking nearly all income.
+const personalSpendScale = revenue => revenue === "below10k" ? 1 : Math.max(1.5, spendScale(revenue));
+const personalProfile = depositSource => ({
+  depositSource, vendors: PERSONAL_VENDORS, cardRange: [6, 110], subscriptions: PERSONAL_SUBSCRIPTIONS, recurring: PERSONAL_RECURRING, spendScale: personalSpendScale,
+});
 const PROFILES = {
-  business: {
-    depositSource: rng => rng() < 0.55 ? pick(rng, PLATFORM_DEPOSITS) : pick(rng, rng() < 0.5 ? PROCESSORS : CUSTOMER_NAMES),
-    vendors: VENDORS,
-    subscriptions: SUBSCRIPTIONS,
-    recurring: [[UTILITIES, 60, 350], [INSURANCE, 150, 900], [LEASES, 200, 1500], [CC_PAYMENTS, 100, 2500]],
-    spendScale,
-  },
+  business: businessProfile,
+  personalCommingled: personalProfile(rng => rng() < 0.65 ? businessProfile.depositSource(rng) : pick(rng, PERSONAL_DEPOSITS)),
+  personalOnly: personalProfile(rng => pick(rng, PERSONAL_DEPOSITS)),
 };
 
 function buildFinancings(config, rng) {
@@ -189,7 +212,7 @@ function monthTransactions(month, monthIndex, config, profile, financings, rng, 
     }
     const cardCount = randomInt(rng, 0, Math.min(8, Math.round(3 * scale)));
     for (let index = 0; index < cardCount; index++) {
-      add(day, "card", "Debit Card Purchase", pick(rng, profile.vendors), moneyCents(rng, 15 * scale, 450 * scale));
+      add(day, "card", "Debit Card Purchase", pick(rng, profile.vendors), moneyCents(rng, profile.cardRange[0] * scale, profile.cardRange[1] * scale));
     }
     if (rng() < 0.18) {
       const [vendors, min, max] = pick(rng, profile.recurring);
@@ -290,7 +313,10 @@ function makeBreakInfo(statement, requestedMode, rng) {
 
 function generateStatements(config, rng = createRandom(config.seed)) {
   validateConfig(config);
-  const bank = config.bank === "random" ? pick(rng, BANKS) : BANKS[Number(config.bank)];
+  const accountType = accountTypeOf(config);
+  const { personal } = ACCOUNT_TYPES[accountType];
+  const baseBank = config.bank === "random" ? pick(rng, BANKS) : BANKS[Number(config.bank)];
+  const bank = personal ? { ...baseBank, tag: PERSONAL_BANK_TAGS[baseBank.name] } : baseBank;
   const business = makeBusiness(config, rng);
   const months = getMonths(config.lastMonth, config.numMonths);
   const financings = buildFinancings(config, rng);
@@ -298,18 +324,18 @@ function generateStatements(config, rng = createRandom(config.seed)) {
   const balanceTier = BALANCE_TIERS[config.balanceTier];
   let openingCents = moneyCents(rng, balanceTier.min, balanceTier.max);
   const statements = months.map((month, index) => {
-    const statement = buildStatement(month, openingCents, monthTransactions(month, index, config, PROFILES.business, financings, rng, debtCollectors), config.allowOverdraft);
+    const statement = buildStatement(month, openingCents, monthTransactions(month, index, config, PROFILES[accountType], financings, rng, debtCollectors), config.allowOverdraft);
     openingCents = statement.closingCents;
     return statement;
   });
   statements.at(-1).breakInfo = makeBreakInfo(statements.at(-1), config.breakMode, rng);
   validateStatements(statements);
-  return { seed: config.seed, bank, business, statements, debtCollectors };
+  return { seed: config.seed, bank, business, statements, debtCollectors, ...(personal && { accountType }) };
 }
 
 
 export {
-  collectorStatementNameOptions, getMonths, validateConfig, makeBusiness, spendScale,
+  PROFILES, collectorStatementNameOptions, getMonths, validateConfig, makeBusiness, spendScale,
   buildFinancings, financingDebits, buildDebtCollectors, debtCollectorDebits, monthTransactions,
   buildStatement, validateStatements, makeBreakInfo, generateStatements, moneyCents,
   referenceNumber, weekday, isBusinessDay,

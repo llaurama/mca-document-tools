@@ -382,6 +382,77 @@
       },
       "resultSha256": "18c6db22979c716f5a4274a38e0dfa5c60f5ae92fd73e22c711cafed6ffceabb",
       "htmlSha256": "6ef0167f83ca4475e83301df3ac6a8fa1b3b8abe8d359792d1febc7abdbef065"
+    },
+    {
+      "name": "personal-commingled-verylight",
+      "config": {
+        "bizName": "",
+        "ownerName": "",
+        "bank": "random",
+        "lastMonth": "2024-03",
+        "numMonths": 3,
+        "revenue": "verylight",
+        "balanceTier": "mid",
+        "allowOverdraft": false,
+        "breakMode": "none",
+        "financings": [],
+        "debtCollectors": [],
+        "seed": "personal-commingled-baseline",
+        "accountType": "personalCommingled"
+      },
+      "resultSha256": "6dc5d1920d640f4cbbd44a26c23c301fa1f4a93125773ddca7cf42f1b6a4bf13",
+      "htmlSha256": "cde58a0117bc916e9b5d9a28467e8fd38d60c24ef12a7d51996736d7852f162f"
+    },
+    {
+      "name": "personal-only-below10k-financing",
+      "config": {
+        "bizName": "",
+        "ownerName": "",
+        "bank": "random",
+        "lastMonth": "2024-03",
+        "numMonths": 4,
+        "revenue": "below10k",
+        "balanceTier": "low",
+        "allowOverdraft": false,
+        "breakMode": "none",
+        "financings": [
+          {
+            "pattern": "weekly",
+            "stopMonth": ""
+          }
+        ],
+        "debtCollectors": [
+          {
+            "name": "random",
+            "statementName": "random"
+          }
+        ],
+        "seed": "personal-only-baseline",
+        "accountType": "personalOnly"
+      },
+      "resultSha256": "d8d2c014d52eaf65993c8076ff22f859acae7ffcfd43b2a6cef13406579bcf0a",
+      "htmlSha256": "427a766f51f3211d6b5ea125a3a73f47fd0ed69f56a30056e153e8f801b89d34"
+    },
+    {
+      "name": "personal-commingled-dba-unicode",
+      "config": {
+        "bizName": "Café Ünïcode & Sons",
+        "ownerName": "José Núñez",
+        "bank": "1",
+        "lastMonth": "2024-03",
+        "numMonths": 2,
+        "revenue": "light",
+        "balanceTier": "mid",
+        "allowOverdraft": false,
+        "breakMode": "none",
+        "financings": [],
+        "debtCollectors": [],
+        "seed": "dba-é🚀",
+        "accountType": "personalCommingled",
+        "dba": true
+      },
+      "resultSha256": "c77010a338178dee649bdd47a2b1c664e4ce8f8948f1a456f62c1537080d9fd1",
+      "htmlSha256": "43203245d83046c26ff5c576f3ffa791f0c40e85a3dc780fd3cdedab70131fd8"
     }
   ],
   "application": [
