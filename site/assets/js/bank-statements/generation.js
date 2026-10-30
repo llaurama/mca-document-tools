@@ -89,6 +89,16 @@ function spendScale(revenue) {
   return Math.max(0.4, (tier.dayMin + tier.dayMax) / 16000);
 }
 
+const PROFILES = {
+  business: {
+    depositSource: rng => rng() < 0.55 ? pick(rng, PLATFORM_DEPOSITS) : pick(rng, rng() < 0.5 ? PROCESSORS : CUSTOMER_NAMES),
+    vendors: VENDORS,
+    subscriptions: SUBSCRIPTIONS,
+    recurring: [[UTILITIES, 60, 350], [INSURANCE, 150, 900], [LEASES, 200, 1500], [CC_PAYMENTS, 100, 2500]],
+    spendScale,
+  },
+};
+
 function buildFinancings(config, rng) {
   const availableFunders = [...FUNDERS];
   const tier = REVENUE_TIERS[config.revenue];
@@ -165,30 +175,30 @@ function debtCollectorDebits(collectors, month, rng) {
 }
 
 /* ---------------- Transactions and true ledger ---------------- */
-function monthTransactions(month, monthIndex, config, financings, rng, debtCollectors = []) {
+function monthTransactions(month, monthIndex, config, profile, financings, rng, debtCollectors = []) {
   const tier = REVENUE_TIERS[config.revenue];
-  const scale = spendScale(config.revenue);
+  const scale = profile.spendScale(config.revenue);
   const transactions = [];
   const add = (day, category, label, detail, amountCents) => transactions.push({ day, category, label, detail, ref: referenceNumber(rng), amountCents });
   for (let day = 1; day <= month.days; day++) {
     if (!isBusinessDay(month, day) && rng() < 0.6) continue;
     const depositCount = randomInt(rng, ...tier.depsPerDay);
     for (let index = 0; index < depositCount; index++) {
-      const source = rng() < 0.55 ? pick(rng, PLATFORM_DEPOSITS) : pick(rng, rng() < 0.5 ? PROCESSORS : CUSTOMER_NAMES);
+      const source = profile.depositSource(rng);
       add(day, "deposits", "Electronic Deposit", `From ${source}`, moneyCents(rng, tier.dayMin / depositCount, tier.dayMax / depositCount));
     }
     const cardCount = randomInt(rng, 0, Math.min(8, Math.round(3 * scale)));
     for (let index = 0; index < cardCount; index++) {
-      add(day, "card", "Debit Card Purchase", pick(rng, VENDORS), moneyCents(rng, 15 * scale, 450 * scale));
+      add(day, "card", "Debit Card Purchase", pick(rng, profile.vendors), moneyCents(rng, 15 * scale, 450 * scale));
     }
     if (rng() < 0.18) {
-      const [vendors, min, max] = pick(rng, [[UTILITIES, 60, 350], [INSURANCE, 150, 900], [LEASES, 200, 1500], [CC_PAYMENTS, 100, 2500]]);
+      const [vendors, min, max] = pick(rng, profile.recurring);
       add(day, "ach", "Electronic Withdrawal", `To ${pick(rng, vendors)}`, moneyCents(rng, min * scale, max * scale));
     }
   }
   const subscriptionCount = randomInt(rng, 2, 4);
   for (let index = 0; index < subscriptionCount; index++) {
-    add(randomInt(rng, 1, 10), "ach", "Recurring Debit", pick(rng, SUBSCRIPTIONS), moneyCents(rng, 9, 120));
+    add(randomInt(rng, 1, 10), "ach", "Recurring Debit", pick(rng, profile.subscriptions), moneyCents(rng, 9, 120));
   }
   for (const financing of financings) transactions.push(...financingDebits(financing, month, monthIndex, rng));
   transactions.push(...debtCollectorDebits(debtCollectors, month, rng));
@@ -288,7 +298,7 @@ function generateStatements(config, rng = createRandom(config.seed)) {
   const balanceTier = BALANCE_TIERS[config.balanceTier];
   let openingCents = moneyCents(rng, balanceTier.min, balanceTier.max);
   const statements = months.map((month, index) => {
-    const statement = buildStatement(month, openingCents, monthTransactions(month, index, config, financings, rng, debtCollectors), config.allowOverdraft);
+    const statement = buildStatement(month, openingCents, monthTransactions(month, index, config, PROFILES.business, financings, rng, debtCollectors), config.allowOverdraft);
     openingCents = statement.closingCents;
     return statement;
   });
