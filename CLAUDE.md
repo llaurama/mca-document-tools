@@ -27,6 +27,7 @@ Output must be reproducible from settings + seed. **Do not reorder random draws 
 - Financing debits must read `To <funder> - Merchant Advance Pmt`; MoneyThumb OCR relies on the "Merchant Advance" phrase to tag MCA payments.
 - "Below $10k/month" revenue tier: max one $100–$300 deposit/day so any month <= $9,300.
 - Bank `accountType` (`business` default, `personalCommingled`, `personalOnly`) picks a `PROFILES` entry in `generation.js` (deposit sources, vendors, recurring pools, spend scale). Result gets an `accountType` key only for personal types; a missing value must stay byte-identical to business.
+- Personal profiles add a fixed monthly housing obligation (`profile.obligations`, drawn once per run after collectors; business profiles have no such hook and draw nothing): one required ACH rent/mortgage debit per statement, same payee and amount, day jittering within two days of an anchor day 1-5. Housing is excluded from `PERSONAL_RECURRING`. Personal profiles also pick subscriptions without repeats within a month.
 - Collector agencies are fictional (names start "Example"); stored as `{ name, aliases }`.
 - All documents carry synthetic-test markings.
 

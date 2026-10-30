@@ -27,15 +27,21 @@ const CC_PAYMENTS = ["CHASE CARD SERVICES", "AMEX EPAYMENT", "CAPITAL ONE CRCARD
 const PERSONAL_DEPOSITS = ["ZELLE PAYMENT", "VENMO CASHOUT", "CASH APP TRANSFER", "APPLE CASH TRANSFER", "PAYROLL DIRECT DEP", "MOBILE CHECK DEPOSIT"];
 const PERSONAL_VENDORS = ["KROGER #0412", "WALMART SUPERCENTER", "TARGET", "ALDI", "TRADER JOES", "COSTCO WHSE", "SHELL OIL", "SPEEDWAY", "CHICK-FIL-A", "CHIPOTLE ONLINE", "STARBUCKS", "CVS PHARMACY", "WALGREENS", "DOLLAR GENERAL"];
 const PERSONAL_SUBSCRIPTIONS = ["NETFLIX.COM", "SPOTIFY USA", "HULU", "DISNEY PLUS", "YOUTUBE PREMIUM", "VERIZON WIRELESS", "T-MOBILE AUTOPAY", "PLANET FITNESS", "APPLE.COM/BILL"];
-const PERSONAL_HOUSING = ["LANDMARK APARTMENTS RENT", "PINE RIDGE PROPERTY MGMT", "FIRST HORIZON MORTGAGE", "ROCKET MORTGAGE"];
+const PERSONAL_HOUSING = ["LANDMARK APARTMENTS RENT", "PINE RIDGE PROPERTY MGMT", "FIRST HORIZON MORTGAGE", "ROCKET MORTGAGE", "OAKWOOD RESIDENTIAL LLC", "HARTWELL LANDLORD SVCS", "FREEDOM HOME LOAN SVC", "CARDINAL MORTGAGE SVC"];
+// Whole-dollar monthly rent or mortgage by revenue tier, sized against that tier's typical monthly deposits.
+const PERSONAL_HOUSING_RANGES = {
+  below10k: [600, 1000], verylight: [1200, 2600], light: [1800, 3500], moderate: [2000, 3500],
+  high: [2000, 3500], veryhigh: [2000, 3500], enterprise: [2000, 3500],
+};
 const PERSONAL_AUTO_LOANS = ["TOYOTA FINANCIAL SVCS", "HONDA FINANCIAL", "CAPITAL ONE AUTO PMT", "AMERICREDIT"];
 const PERSONAL_STUDENT_LOANS = ["NELNET STUDENT LOAN", "MOHELA STUDENT LN", "AIDVANTAGE"];
 const PERSONAL_CARDS = ["DISCOVER E-PAYMENT", "SYNCHRONY BANK PMT", "BARCLAYCARD US", "WELLS FARGO CARD PMT"];
 const PERSONAL_UTILITIES = ["MUNICIPAL WATER & SEWER", "COLUMBIA GAS", "DUKE ENERGY", "XFINITY INTERNET"];
 const PERSONAL_INSURANCE = ["GEICO AUTO", "STATE FARM AUTO", "LEMONADE RENTERS", "ALLSTATE"];
 // [pool, min, max] absolute dollars: personal spend is not scaled by revenue tier.
+// Housing is deliberately absent: it posts once a month through the profile's fixed obligation.
 const PERSONAL_RECURRING = [
-  [PERSONAL_HOUSING, 900, 2200], [PERSONAL_AUTO_LOANS, 250, 650], [PERSONAL_STUDENT_LOANS, 80, 400],
+  [PERSONAL_AUTO_LOANS, 250, 650], [PERSONAL_STUDENT_LOANS, 80, 400],
   [PERSONAL_CARDS, 40, 600], [PERSONAL_UTILITIES, 40, 250], [PERSONAL_INSURANCE, 60, 260],
 ];
 const PERSONAL_BANK_TAGS = { Meridian: "Personal Banking", Coastline: "Personal Banking", Ironbridge: "Consumer Bank", Highline: "Community Bank" };
@@ -165,7 +171,10 @@ const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Se
  *     statementName: "canonical" | "random" | "alias:<catalog alias>"}]}.
  * Month: {key: "YYYY-MM", label, year, index: 0..11, days}.
  * Transaction: {day, category, label, detail, ref, amountCents}; amounts are positive.
- *   Collector ACH debits also carry {required: true, collectorName}.
+ *   Collector ACH debits also carry {required: true, collectorName}. Personal results also
+ *   carry exactly one required ACH "To <PERSONAL_HOUSING payee>" debit per statement, with the
+ *   same amount every month (drawn once per run from PERSONAL_HOUSING_RANGES[revenue]) and a
+ *   printed day within two days of a fixed anchor day; business results never do.
  * Statement: {month, openingCents, closingCents, transactions, dailyBalances,
  *   totals: {deposits, card, ach, financing}, breakInfo}.
  * Result: {seed, bank, business: {legal, ownerName, acct, addr}, statements,
@@ -181,7 +190,7 @@ const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Se
 export {
   BANKS, FIRST, LAST, BIZ_CORE, BIZ_KIND, STREETS, CITIES, PROCESSORS, PLATFORM_DEPOSITS,
   CUSTOMER_NAMES, VENDORS, SUBSCRIPTIONS, UTILITIES, INSURANCE, LEASES, CC_PAYMENTS, FUNDERS,
-  PERSONAL_DEPOSITS, PERSONAL_VENDORS, PERSONAL_SUBSCRIPTIONS, PERSONAL_HOUSING, PERSONAL_AUTO_LOANS,
+  PERSONAL_DEPOSITS, PERSONAL_VENDORS, PERSONAL_SUBSCRIPTIONS, PERSONAL_HOUSING, PERSONAL_HOUSING_RANGES, PERSONAL_AUTO_LOANS,
   PERSONAL_STUDENT_LOANS, PERSONAL_CARDS, PERSONAL_UTILITIES, PERSONAL_INSURANCE, PERSONAL_RECURRING,
   PERSONAL_BANK_TAGS, ACCOUNT_TYPES,
   DEBT_COLLECTORS, DEBT_COLLECTOR_BY_NAME, DEBT_COLLECTOR_COUNTS, REVENUE_TIERS, BALANCE_TIERS,

@@ -4,7 +4,7 @@ import { configError } from '../shared/validation.js';
 import {
   BANKS, FIRST, LAST, BIZ_CORE, BIZ_KIND, STREETS, CITIES, PROCESSORS, PLATFORM_DEPOSITS,
   CUSTOMER_NAMES, VENDORS, SUBSCRIPTIONS, UTILITIES, INSURANCE, LEASES, CC_PAYMENTS, FUNDERS,
-  PERSONAL_DEPOSITS, PERSONAL_VENDORS, PERSONAL_SUBSCRIPTIONS, PERSONAL_RECURRING, PERSONAL_BANK_TAGS, ACCOUNT_TYPES,
+  PERSONAL_DEPOSITS, PERSONAL_VENDORS, PERSONAL_SUBSCRIPTIONS, PERSONAL_HOUSING, PERSONAL_HOUSING_RANGES, PERSONAL_RECURRING, PERSONAL_BANK_TAGS, ACCOUNT_TYPES,
   DEBT_COLLECTORS, DEBT_COLLECTOR_BY_NAME, DEBT_COLLECTOR_COUNTS, REVENUE_TIERS, BALANCE_TIERS,
   STATEMENT_COUNTS, FINANCING_PATTERNS, BREAK_MODES, CATEGORIES, CATEGORY_BY_KEY, MONTH_NAMES,
 } from './data.js';
@@ -113,8 +113,17 @@ const businessProfile = {
 };
 // Absolute personal amounts fit Below $10k; richer tiers spend proportionally more instead of banking nearly all income.
 const personalSpendScale = revenue => revenue === "below10k" ? 1 : Math.max(1.5, spendScale(revenue));
+// Fixed once per run so every statement shows the same payee and amount, like real rent or a mortgage.
+const personalObligations = (config, rng) => {
+  const [minDollars, maxDollars] = PERSONAL_HOUSING_RANGES[config.revenue];
+  return [{
+    detail: `To ${pick(rng, PERSONAL_HOUSING)}`, amountCents: randomInt(rng, minDollars, maxDollars) * 100,
+    ref: referenceNumber(rng), anchorDay: randomInt(rng, 1, 5),
+  }];
+};
 const personalProfile = depositSource => ({
   depositSource, vendors: PERSONAL_VENDORS, cardRange: [6, 110], subscriptions: PERSONAL_SUBSCRIPTIONS, recurring: PERSONAL_RECURRING, spendScale: personalSpendScale,
+  distinctSubscriptions: true, obligations: personalObligations,
 });
 const PROFILES = {
   business: businessProfile,
@@ -197,8 +206,15 @@ function debtCollectorDebits(collectors, month, rng) {
   }));
 }
 
+function obligationDebits(obligations, month, rng) {
+  return obligations.map(obligation => ({
+    day: Math.min(month.days, obligation.anchorDay + randomInt(rng, 0, 2)), category: "ach", label: "ACH Debit",
+    detail: obligation.detail, ref: obligation.ref, amountCents: obligation.amountCents, required: true,
+  }));
+}
+
 /* ---------------- Transactions and true ledger ---------------- */
-function monthTransactions(month, monthIndex, config, profile, financings, rng, debtCollectors = []) {
+function monthTransactions(month, monthIndex, config, profile, financings, rng, debtCollectors = [], obligations = []) {
   const tier = REVENUE_TIERS[config.revenue];
   const scale = profile.spendScale(config.revenue);
   const transactions = [];
@@ -220,11 +236,16 @@ function monthTransactions(month, monthIndex, config, profile, financings, rng, 
     }
   }
   const subscriptionCount = randomInt(rng, 2, 4);
+  const subscriptions = [...profile.subscriptions];
   for (let index = 0; index < subscriptionCount; index++) {
-    add(randomInt(rng, 1, 10), "ach", "Recurring Debit", pick(rng, profile.subscriptions), moneyCents(rng, 9, 120));
+    const day = randomInt(rng, 1, 10);
+    const subscription = pick(rng, subscriptions);
+    if (profile.distinctSubscriptions) subscriptions.splice(subscriptions.indexOf(subscription), 1);
+    add(day, "ach", "Recurring Debit", subscription, moneyCents(rng, 9, 120));
   }
   for (const financing of financings) transactions.push(...financingDebits(financing, month, monthIndex, rng));
   transactions.push(...debtCollectorDebits(debtCollectors, month, rng));
+  transactions.push(...obligationDebits(obligations, month, rng));
   return transactions.sort((left, right) => left.day - right.day || CATEGORY_BY_KEY[right.category].sign - CATEGORY_BY_KEY[left.category].sign);
 }
 
@@ -321,10 +342,12 @@ function generateStatements(config, rng = createRandom(config.seed)) {
   const months = getMonths(config.lastMonth, config.numMonths);
   const financings = buildFinancings(config, rng);
   const debtCollectors = buildDebtCollectors(config, rng);
+  const profile = PROFILES[accountType];
+  const obligations = profile.obligations?.(config, rng) ?? [];
   const balanceTier = BALANCE_TIERS[config.balanceTier];
   let openingCents = moneyCents(rng, balanceTier.min, balanceTier.max);
   const statements = months.map((month, index) => {
-    const statement = buildStatement(month, openingCents, monthTransactions(month, index, config, PROFILES[accountType], financings, rng, debtCollectors), config.allowOverdraft);
+    const statement = buildStatement(month, openingCents, monthTransactions(month, index, config, profile, financings, rng, debtCollectors, obligations), config.allowOverdraft);
     openingCents = statement.closingCents;
     return statement;
   });

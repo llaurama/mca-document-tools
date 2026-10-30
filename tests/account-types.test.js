@@ -5,7 +5,7 @@ import { renderStatement } from '../site/assets/js/bank-statements/rendering.js'
 import {
   ACCOUNT_TYPES, REVENUE_TIERS, FINANCING_PATTERNS, BREAK_MODES, STATEMENT_COUNTS, BANKS,
   PROCESSORS, PLATFORM_DEPOSITS, CUSTOMER_NAMES, VENDORS, SUBSCRIPTIONS, UTILITIES, INSURANCE, LEASES, CC_PAYMENTS,
-  PERSONAL_DEPOSITS, PERSONAL_VENDORS, PERSONAL_SUBSCRIPTIONS, PERSONAL_RECURRING, PERSONAL_BANK_TAGS,
+  PERSONAL_DEPOSITS, PERSONAL_VENDORS, PERSONAL_SUBSCRIPTIONS, PERSONAL_HOUSING, PERSONAL_HOUSING_RANGES, PERSONAL_RECURRING, PERSONAL_BANK_TAGS,
 } from '../site/assets/js/bank-statements/data.js';
 import { bankConfig, deepFreeze } from './helpers.js';
 
@@ -16,8 +16,9 @@ const BUSINESS_SPEND = new Set([
 ]);
 const PERSONAL_DEPOSIT_DETAILS = new Set(PERSONAL_DEPOSITS.map(source => `From ${source}`));
 const BUSINESS_DEPOSIT_DETAILS = new Set([...BUSINESS_DEPOSITS].map(source => `From ${source}`));
+const HOUSING_DETAILS = new Set(PERSONAL_HOUSING.map(payee => `To ${payee}`));
 const PERSONAL_SPEND = new Set([
-  ...PERSONAL_VENDORS, ...PERSONAL_SUBSCRIPTIONS, ...PERSONAL_RECURRING.flatMap(([pool]) => pool.map(vendor => `To ${vendor}`)),
+  ...PERSONAL_VENDORS, ...PERSONAL_SUBSCRIPTIONS, ...HOUSING_DETAILS, ...PERSONAL_RECURRING.flatMap(([pool]) => pool.map(vendor => `To ${vendor}`)),
 ]);
 const render = result => result.statements.map(statement => renderStatement(result, statement)).join('');
 const details = (result, category) => result.statements.flatMap(statement => statement.transactions.filter(transaction => transaction.category === category).map(transaction => transaction.detail));
@@ -174,5 +175,52 @@ test('personal generation and rendering do not mutate frozen inputs or results',
     }));
     const result = deepFreeze(generateStatements(config));
     assert.doesNotThrow(() => render(result));
+  }
+});
+
+const housingPayments = statement => statement.transactions.filter(transaction => HOUSING_DETAILS.has(transaction.detail));
+
+test('every personal statement has exactly one housing payment with a fixed amount and payee, and business has none', () => {
+  for (const accountType of PERSONAL_TYPES) {
+    for (const revenue of ACCOUNT_TYPES[accountType].revenueTiers) {
+      const [minDollars, maxDollars] = PERSONAL_HOUSING_RANGES[revenue];
+      for (const balanceTier of ['verylow', 'high']) {
+        for (let seed = 0; seed < 12; seed++) {
+          const result = generateStatements(bankConfig({
+            accountType, revenue, balanceTier, numMonths: 6, lastMonth: ['2024-07', '2025-02'][seed % 2],
+            allowOverdraft: seed % 3 === 0, seed: `housing-${seed}`,
+          }));
+          const payments = result.statements.map(housingPayments);
+          assert.ok(payments.every(list => list.length === 1), `${accountType}/${revenue}/${seed}`);
+          const [first] = payments[0];
+          for (const [payment] of payments) {
+            assert.equal(payment.amountCents, first.amountCents);
+            assert.equal(payment.detail, first.detail);
+            assert.equal(payment.ref, first.ref);
+            assert.equal(payment.category, 'ach');
+            assert.equal(payment.required, true);
+          }
+          assert.ok(first.amountCents >= minDollars * 100 && first.amountCents <= maxDollars * 100);
+          const days = payments.map(([payment]) => payment.day);
+          assert.ok(Math.max(...days) - Math.min(...days) <= 2 && Math.min(...days) >= 1 && Math.max(...days) <= 7, days.join());
+        }
+      }
+    }
+  }
+  for (const revenue of Object.keys(REVENUE_TIERS)) {
+    const business = generateStatements(bankConfig({ revenue, numMonths: 6, seed: 'housing-business' }));
+    assert.ok(business.statements.every(statement => housingPayments(statement).length === 0));
+  }
+});
+
+test('subscriptions never repeat within a personal statement', () => {
+  for (const accountType of PERSONAL_TYPES) {
+    for (let seed = 0; seed < 30; seed++) {
+      const result = generateStatements(bankConfig({ accountType, revenue: 'verylight', numMonths: 6, seed: `subs-${seed}` }));
+      for (const statement of result.statements) {
+        const subscriptions = statement.transactions.filter(transaction => transaction.label === 'Recurring Debit').map(transaction => transaction.detail);
+        assert.equal(new Set(subscriptions).size, subscriptions.length, subscriptions.join());
+      }
+    }
   }
 });

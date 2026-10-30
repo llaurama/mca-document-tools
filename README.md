@@ -89,8 +89,8 @@ wording are the same for every type, so MoneyThumb OCR handles all of them.
 - **Personal, business income commingled** models a sole proprietor whose income lands
   in personal checking: about 65% of deposits use the business-style sources and the
   rest are personal ones (Zelle, Venmo, Cash App, payroll). Spending is personal
-  (groceries, gas, rent or mortgage, streaming, personal cards). All revenue levels
-  are available.
+  (groceries, gas, streaming, personal cards) plus one rent or mortgage payment per
+  statement. All revenue levels are available.
 - **Personal, personal income only** has only personal deposits and supports the
   Below $10k and Very Light revenue levels.
 
@@ -98,7 +98,9 @@ Personal statements read "Personal Bank Statement" and "Personal Checking" with 
 personal bank tag. They print the account holder only; **Show DBA line** adds a
 `DBA <business name>` line under the holder name and in the footer. Personal spending
 uses fixed dollar amounts sized for the Below $10k level, scaled up for richer tiers.
-Financing and collector payments still scale with the revenue level.
+Each personal run draws one rent or mortgage payee and amount (sized to the revenue
+level) and repeats it every month within a day or two of the same date; it posts even
+when it overdraws a low balance. Financing and collector payments still scale with the revenue level.
 
 Generation results gain an `accountType` key only for personal types, so business seeds
 and their stored baselines are unchanged.
