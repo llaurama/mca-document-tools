@@ -22,12 +22,25 @@
       <form id="generatorForm" novalidate>
         <fieldset id="settings" aria-label="Statement settings">
           <fieldset class="control-section">
-            <legend>Business</legend>
+            <legend>Account</legend>
             <div class="fields">
-              <div class="field"><label for="bizName">Business name</label><input id="bizName" type="text"
-                  placeholder="Random business" maxlength="160"></div>
+              <div class="field"><label for="accountType">Account type</label><select id="accountType"
+                  aria-describedby="accountTypeHint"></select>
+                <p class="hint" id="accountTypeHint">Personal checking prints the account holder instead of a business.
+                  Commingled mixes business and personal deposits; personal income only supports the two lowest revenue
+                  levels.</p>
+              </div>
               <div class="field"><label for="ownerName">Account holder</label><input id="ownerName" type="text"
                   placeholder="Random account holder" maxlength="160"></div>
+              <div id="dbaField" hidden>
+                <div class="check"><input type="checkbox" id="dba" aria-describedby="dbaHint" disabled><label
+                    for="dba">Show DBA line</label></div>
+                <p class="hint" id="dbaHint">Prints “&lt;holder&gt; DBA &lt;business name&gt;” on the statement.</p>
+              </div>
+              <div id="bizNameField">
+                <div class="field"><label for="bizName" id="bizNameLabel">Business name</label><input id="bizName"
+                    type="text" placeholder="Random business" maxlength="160"></div>
+              </div>
             </div>
           </fieldset>
           <fieldset class="control-section">

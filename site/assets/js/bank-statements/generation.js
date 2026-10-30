@@ -52,9 +52,9 @@ function validateConfig(config) {
   const accountType = accountTypeOf(config);
   if (!Object.hasOwn(ACCOUNT_TYPES, accountType)) throw configError("accountType", "Choose an account type.");
   if (!Object.hasOwn(REVENUE_TIERS, config.revenue)) throw configError("revenue", "Choose a revenue tier.");
-  const { label, revenueTiers, personal } = ACCOUNT_TYPES[accountType];
+  const { revenueTiers, personal } = ACCOUNT_TYPES[accountType];
   if (!revenueTiers.includes(config.revenue)) {
-    throw configError("revenue", `${label} supports only ${revenueTiers.map(tier => REVENUE_TIERS[tier].label).join(" or ")} revenue.`);
+    throw configError("revenue", `This account type supports only ${revenueTiers.map(tier => REVENUE_TIERS[tier].label).join(" or ")} revenue.`);
   }
   if (config.dba !== undefined && typeof config.dba !== "boolean") throw configError("dba", "Choose whether to show a DBA line.");
   if (config.dba && !personal) throw configError("dba", "A DBA line applies only to personal accounts.");

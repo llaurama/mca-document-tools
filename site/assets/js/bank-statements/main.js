@@ -2,7 +2,7 @@ import { createSeed } from '../shared/random.js';
 import { pad, formatMoney } from '../shared/formatting.js';
 import { fillSelect, createFeedback } from '../shared/ui.js';
 import {
-  BANKS, STATEMENT_COUNTS, REVENUE_TIERS, BALANCE_TIERS, FINANCING_PATTERNS,
+  BANKS, ACCOUNT_TYPES, PERSONAL_BANK_TAGS, STATEMENT_COUNTS, REVENUE_TIERS, BALANCE_TIERS, FINANCING_PATTERNS,
   DEBT_COLLECTORS, DEBT_COLLECTOR_COUNTS, BREAK_MODES,
 } from './data.js';
 import { generateStatements, getMonths, collectorStatementNameOptions } from './generation.js';
@@ -41,8 +41,8 @@ async function exportStatements() {
 /* ---------------- Application state and controls ---------------- */
 const state = { draft: null, result: null, appliedSignature: '', exporting: false };
 const ui = Object.fromEntries([
-  'generatorForm', 'settings', 'bizName', 'ownerName', 'bank', 'lastMonth', 'numMonths', 'revenue',
-  'balanceTier', 'overdrafts', 'financings', 'financingControls', 'financingNotice', 'breakMode', 'seed',
+  'generatorForm', 'settings', 'accountType', 'bizNameField', 'bizNameLabel', 'bizName', 'dbaField', 'dba', 'ownerName', 'bank', 'lastMonth', 'numMonths', 'revenue',
+  'revenueHint', 'balanceTier', 'overdrafts', 'financings', 'financingControls', 'financingNotice', 'breakMode', 'seed',
   'includeDebtCollectors', 'debtCollectorSettings', 'debtCollectorCount', 'debtCollectorControls', 'debtCollectorNotice',
   'btnGen', 'btnExport', 'btnPrint', 'status', 'error', 'seedInfo', 'generatedSeed', 'preview',
 ].map(id => [id, document.getElementById(id)]));
@@ -54,8 +54,27 @@ const { setStatus, showError } = createFeedback({
   resolveField: field => ui[field === 'allowOverdraft' ? 'overdrafts' : field] || (field && document.getElementById(field)),
 });
 
+const currentAccountType = () => ACCOUNT_TYPES[ui.accountType.value];
+const revenueHintBase = ui.revenueHint.textContent;
+
+function revenueChoices() {
+  return currentAccountType().revenueTiers.map(value => ({ value, label: REVENUE_TIERS[value].label }));
+}
+
+function bankChoices() {
+  const { personal } = currentAccountType();
+  return [{ value: 'random', label: 'Random bank' }, ...BANKS.map((bank, index) => ({ value: index, label: `${bank.name} ${personal ? PERSONAL_BANK_TAGS[bank.name] : bank.tag}` }))];
+}
+
+function rebuildAccountTypeOptions() {
+  const { revenueTiers } = currentAccountType();
+  fillSelect(ui.revenue, revenueChoices(), revenueTiers.includes(ui.revenue.value) ? ui.revenue.value : 'verylight');
+  fillSelect(ui.bank, bankChoices(), ui.bank.value);
+}
+
 function readDraft() {
   return {
+    accountType: ui.accountType.value, dba: currentAccountType().personal && ui.dba.checked,
     bizName: ui.bizName.value.trim(), ownerName: ui.ownerName.value.trim(), bank: ui.bank.value,
     lastMonth: ui.lastMonth.value, numMonths: Number(ui.numMonths.value), revenue: ui.revenue.value,
     balanceTier: ui.balanceTier.value, allowOverdraft: ui.overdrafts.checked, seed: ui.seed.value.trim(),
@@ -140,6 +159,17 @@ function canExport() {
 }
 
 function updateControls() {
+  const { personal, revenueTiers } = currentAccountType();
+  const showBizName = !personal || ui.dba.checked;
+  ui.dbaField.hidden = !personal;
+  ui.dba.disabled = !personal;
+  ui.bizNameField.hidden = !showBizName;
+  ui.bizName.disabled = !showBizName;
+  ui.bizNameLabel.textContent = personal ? 'DBA name' : 'Business name';
+  ui.bizName.placeholder = personal ? 'Random DBA name' : 'Random business';
+  ui.revenueHint.textContent = revenueTiers.length < Object.keys(REVENUE_TIERS).length
+    ? `${revenueHintBase} This account type supports only ${revenueTiers.map(tier => REVENUE_TIERS[tier].label).join(' or ')}.`
+    : revenueHintBase;
   ui.settings.disabled = state.exporting;
   ui.debtCollectorSettings.hidden = !ui.includeDebtCollectors.checked;
   ui.debtCollectorSettings.disabled = !ui.includeDebtCollectors.checked;
@@ -159,6 +189,7 @@ function readyStatus() {
 function draftChanged(event) {
   if (state.exporting) return;
   if (['financings', 'numMonths', 'lastMonth'].includes(event.target.id)) rebuildFinancingControls();
+  if (event.target.id === 'accountType') rebuildAccountTypeOptions();
   if (event.target.id === 'debtCollectorCount') rebuildDebtCollectorControls();
   if (event.target.matches('[data-collector-name]')) updateCollectorStatementNames(event.target);
   if (event.target.matches('[data-collector-statement-name]')) ui.debtCollectorNotice.textContent = '';
@@ -193,9 +224,10 @@ function generatePreview(event) {
 }
 
 function initialize() {
-  fillSelect(ui.bank, [{ value: 'random', label: 'Random bank' }, ...BANKS.map((bank, index) => ({ value: index, label: `${bank.name} ${bank.tag}` }))], 'random');
+  fillSelect(ui.accountType, Object.entries(ACCOUNT_TYPES).map(([value, type]) => ({ value, label: type.label })), 'business');
+  fillSelect(ui.bank, bankChoices(), 'random');
   fillSelect(ui.numMonths, STATEMENT_COUNTS.map(count => ({ value: count, label: String(count) })), 3);
-  fillSelect(ui.revenue, Object.entries(REVENUE_TIERS).map(([value, tier]) => ({ value, label: tier.label })), 'moderate');
+  fillSelect(ui.revenue, revenueChoices(), 'moderate');
   fillSelect(ui.balanceTier, Object.entries(BALANCE_TIERS).map(([value, tier]) => ({ value, label: tier.label })), 'mid');
   fillSelect(ui.financings, [0, 1, 2, 3].map(count => ({ value: count, label: String(count) })), 0);
   fillSelect(ui.debtCollectorCount, DEBT_COLLECTOR_COUNTS.map(count => ({ value: count, label: String(count) })), 1);
