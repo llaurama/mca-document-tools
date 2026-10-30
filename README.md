@@ -78,6 +78,31 @@ The combined deposits across several months may exceed $10,000.
 The preview reports total ledger deposits divided by the number of statements;
 starting balances are excluded. Existing revenue tiers retain their behavior.
 
+## Account Type
+
+The bank generator's **Account type** dropdown chooses what kind of checking account
+the statements describe. Layout and the `To <funder> - Merchant Advance Pmt` financing
+wording are the same for every type, so MoneyThumb OCR handles all of them.
+
+- **Business account** (default) is the original behavior: business deposits and
+  vendors, "Business Bank Statement" and "Business Checking".
+- **Personal, business income commingled** models a sole proprietor whose income lands
+  in personal checking: about 65% of deposits use the business-style sources and the
+  rest are personal ones (Zelle, Venmo, Cash App, payroll). Spending is personal
+  (groceries, gas, rent or mortgage, streaming, personal cards). All revenue levels
+  are available.
+- **Personal, personal income only** has only personal deposits and supports the
+  Below $10k and Very Light revenue levels.
+
+Personal statements read "Personal Bank Statement" and "Personal Checking" with a
+personal bank tag. They print the account holder only; **Show DBA line** adds a
+`DBA <business name>` line under the holder name and in the footer. Personal spending
+uses fixed dollar amounts sized for the Below $10k level, scaled up for richer tiers.
+Financing and collector payments still scale with the revenue level.
+
+Generation results gain an `accountType` key only for personal types, so business seeds
+and their stored baselines are unchanged.
+
 ## Collector Catalog
 
 Ten fictional collector agencies and their statement aliases are embedded in the
@@ -99,7 +124,9 @@ as MCA payments. Without the phrase, no financing reaches the bank summary.
 
 The regression suite checks exact seeded data/document parity, shared randomness,
 ledger continuity and reconciliation, calendar boundaries, financing and collector
-payments, presentation-only corruption, and application ownership and signatures.
+payments, presentation-only corruption, personal account types (reconciliation,
+revenue-tier limits, DBA rendering, deposit-source mix), and application ownership
+and signatures.
 Fixed-seed expectations are stored in `tests/fixtures/generation-baselines.json`.
 
 For UI changes, serve both the site root and a nested URL, then check navigation,
