@@ -30,7 +30,7 @@ const PERSONAL_SUBSCRIPTIONS = ["NETFLIX.COM", "SPOTIFY USA", "HULU", "DISNEY PL
 const PERSONAL_HOUSING = ["LANDMARK APARTMENTS RENT", "PINE RIDGE PROPERTY MGMT", "FIRST HORIZON MORTGAGE", "ROCKET MORTGAGE", "OAKWOOD RESIDENTIAL LLC", "HARTWELL LANDLORD SVCS", "FREEDOM HOME LOAN SVC", "CARDINAL MORTGAGE SVC"];
 // Whole-dollar monthly rent or mortgage by revenue tier, sized against that tier's typical monthly deposits.
 const PERSONAL_HOUSING_RANGES = {
-  below10k: [600, 1000], verylight: [1200, 2600], light: [1800, 3500], moderate: [2000, 3500],
+  below10k: [550, 900], verylight: [1200, 2600], light: [1800, 3500], moderate: [2000, 3500],
   high: [2000, 3500], veryhigh: [2000, 3500], enterprise: [2000, 3500],
 };
 const PERSONAL_AUTO_LOANS = ["TOYOTA FINANCIAL SVCS", "HONDA FINANCIAL", "CAPITAL ONE AUTO PMT", "AMERICREDIT"];
