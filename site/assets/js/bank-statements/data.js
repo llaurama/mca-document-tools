@@ -6,6 +6,7 @@ const BANKS = [
   { name: "Highline", tag: "Community Bank", accent: "#5b1f66", accentLt: "#f2e9f4" },
 ];
 
+
 const FIRST = ["Marcus", "Tanya", "Priya", "Elena", "Devin", "Carla", "Omar", "Lena", "Gregory", "Naomi", "Hector", "Sofia", "Andre", "Maya", "Victor", "Rachel", "Dmitri", "Aisha", "Liam", "Bianca"];
 const LAST = ["Delgado", "Okonkwo", "Nakamura", "Vasquez", "Whitfield", "Brennan", "Castellano", "Petrov", "Adebayo", "Sorensen", "Mercado", "Halloran", "Yamamoto", "Okafor", "Donnelly", "Rivera", "Kowalski", "Fontaine", "Ashford", "Salinas"];
 const BIZ_CORE = ["Riverstone", "Bluefield", "Cedar Peak", "Harborview", "Ironwood", "Summit Lane", "Maple Crest", "Northgate", "Silverbrook", "Coastal Pine", "Granite Hollow", "Westwind", "Brightwater", "Stonebridge", "Lakeside", "Harbor Lane"];
@@ -122,17 +123,24 @@ const REVENUE_TIERS = {
 };
 const ACCOUNT_TYPES = {
   business: {
-    label: "Business account", title: "Business Bank Statement", accountLabel: "Business Checking",
+    label: "Business account", owner: "Business",
     revenueTiers: Object.keys(REVENUE_TIERS), personal: false,
   },
   personalCommingled: {
-    label: "Personal, business income commingled", title: "Personal Bank Statement", accountLabel: "Personal Checking",
+    label: "Personal, business income commingled", owner: "Personal",
     revenueTiers: Object.keys(REVENUE_TIERS), personal: true,
   },
   personalOnly: {
-    label: "Personal, personal income only", title: "Personal Bank Statement", accountLabel: "Personal Checking",
+    label: "Personal, personal income only", owner: "Personal",
     revenueTiers: ["below10k", "verylight"], personal: true,
   },
+};
+// Products change only the printed labels ("<owner> <name>", "<owner> <document>"), not the
+// transactions, to test whether MoneyThumb's accounttypestr follows the label.
+const PRODUCTS = {
+  checking: { label: "Checking", name: "Checking", document: "Bank Statement" },
+  savings: { label: "Savings", name: "Savings", document: "Bank Statement" },
+  creditCard: { label: "Credit card (labels only)", name: "Credit Card", document: "Credit Card Statement" },
 };
 const BALANCE_TIERS = {
   verylow: { label: "Very Low ($500–2k)", min: 500, max: 2000 },
@@ -192,7 +200,7 @@ export {
   CUSTOMER_NAMES, VENDORS, SUBSCRIPTIONS, UTILITIES, INSURANCE, LEASES, CC_PAYMENTS, FUNDERS,
   PERSONAL_DEPOSITS, PERSONAL_VENDORS, PERSONAL_SUBSCRIPTIONS, PERSONAL_HOUSING, PERSONAL_HOUSING_RANGES, PERSONAL_AUTO_LOANS,
   PERSONAL_STUDENT_LOANS, PERSONAL_CARDS, PERSONAL_UTILITIES, PERSONAL_INSURANCE, PERSONAL_RECURRING,
-  PERSONAL_BANK_TAGS, ACCOUNT_TYPES,
+  PERSONAL_BANK_TAGS, ACCOUNT_TYPES, PRODUCTS,
   DEBT_COLLECTORS, DEBT_COLLECTOR_BY_NAME, DEBT_COLLECTOR_COUNTS, REVENUE_TIERS, BALANCE_TIERS,
   STATEMENT_COUNTS, FINANCING_PATTERNS, BREAK_MODES, CATEGORIES, CATEGORY_BY_KEY, MONTH_NAMES,
 };

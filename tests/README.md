@@ -1,6 +1,6 @@
 # Generator regression tests
 
-Run `npm test` from the project root (Node 22 or later; no package installation required). Tests use Node's built-in runner and import only the site's native modules and these fixtures. Browser layout, navigation, printing, dependency failure, and ZIP export additionally need browser checks.
+Run `npm test` from the project root (Node 22 or later; no package installation required). Tests use Node's built-in runner and import only the site's native modules, the bundle builder, and these fixtures. Browser layout, navigation, printing, dependency failure, and ZIP export additionally need browser checks.
 
 `fixtures/generation-baselines.json` records fixed input settings, expected seeded random sequences (including Unicode seeds), the collector catalog hash, and hashes of `JSON.stringify(result)` and rendered document HTML. Tests use only files included in this project.
 

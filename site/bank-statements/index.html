@@ -30,6 +30,11 @@
                   Commingled mixes business and personal deposits; personal income only supports the two lowest revenue
                   levels.</p>
               </div>
+              <div class="field"><label for="product">Product</label><select id="product"
+                  aria-describedby="productHint"></select>
+                <p class="hint" id="productHint">Changes only the printed account name, such as “Business Savings”.
+                  Transactions are the same for every product.</p>
+              </div>
               <div class="field"><label for="ownerName">Account holder</label><input id="ownerName" type="text"
                   placeholder="Random account holder" maxlength="160"></div>
               <div id="dbaField" hidden>
@@ -133,7 +138,7 @@
     </aside>
     <main class="workspace">
       <header class="toolbar">
-        <a class="all-tools" href="../">&larr; All tools</a>
+        <a class="all-tools" href="../index.html">&larr; All tools</a>
         <div class="toolbar-top">
           <h2>Statement preview</h2>
           <div class="actions"><button id="btnExport" type="button" disabled>Download ZIP</button><button id="btnPrint"
@@ -151,7 +156,7 @@
       </div>
     </main>
   </div>
-  <script type="module" src="../assets/js/bank-statements/main.js"></script>
+  <script defer src="../assets/js/bank-statements.bundle.js"></script>
 </body>
 
 </html>

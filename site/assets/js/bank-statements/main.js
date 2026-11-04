@@ -2,7 +2,7 @@ import { createSeed } from '../shared/random.js';
 import { pad, formatMoney } from '../shared/formatting.js';
 import { fillSelect, createFeedback } from '../shared/ui.js';
 import {
-  BANKS, ACCOUNT_TYPES, PERSONAL_BANK_TAGS, STATEMENT_COUNTS, REVENUE_TIERS, BALANCE_TIERS, FINANCING_PATTERNS,
+  BANKS, ACCOUNT_TYPES, PRODUCTS, PERSONAL_BANK_TAGS, STATEMENT_COUNTS, REVENUE_TIERS, BALANCE_TIERS, FINANCING_PATTERNS,
   DEBT_COLLECTORS, DEBT_COLLECTOR_COUNTS, BREAK_MODES,
 } from './data.js';
 import { generateStatements, getMonths, collectorStatementNameOptions } from './generation.js';
@@ -41,7 +41,7 @@ async function exportStatements() {
 /* ---------------- Application state and controls ---------------- */
 const state = { draft: null, result: null, appliedSignature: '', exporting: false };
 const ui = Object.fromEntries([
-  'generatorForm', 'settings', 'accountType', 'bizNameField', 'bizNameLabel', 'bizName', 'dbaField', 'dba', 'ownerName', 'bank', 'lastMonth', 'numMonths', 'revenue',
+  'generatorForm', 'settings', 'accountType', 'product', 'bizNameField', 'bizNameLabel', 'bizName', 'dbaField', 'dba', 'ownerName', 'bank', 'lastMonth', 'numMonths', 'revenue',
   'revenueHint', 'balanceTier', 'overdrafts', 'financings', 'financingControls', 'financingNotice', 'breakMode', 'seed',
   'includeDebtCollectors', 'debtCollectorSettings', 'debtCollectorCount', 'debtCollectorControls', 'debtCollectorNotice',
   'btnGen', 'btnExport', 'btnPrint', 'status', 'error', 'seedInfo', 'generatedSeed', 'preview',
@@ -74,7 +74,7 @@ function rebuildAccountTypeOptions() {
 
 function readDraft() {
   return {
-    accountType: ui.accountType.value, dba: currentAccountType().personal && ui.dba.checked,
+    accountType: ui.accountType.value, product: ui.product.value, dba: currentAccountType().personal && ui.dba.checked,
     bizName: ui.bizName.value.trim(), ownerName: ui.ownerName.value.trim(), bank: ui.bank.value,
     lastMonth: ui.lastMonth.value, numMonths: Number(ui.numMonths.value), revenue: ui.revenue.value,
     balanceTier: ui.balanceTier.value, allowOverdraft: ui.overdrafts.checked, seed: ui.seed.value.trim(),
@@ -225,6 +225,7 @@ function generatePreview(event) {
 
 function initialize() {
   fillSelect(ui.accountType, Object.entries(ACCOUNT_TYPES).map(([value, type]) => ({ value, label: type.label })), 'business');
+  fillSelect(ui.product, Object.entries(PRODUCTS).map(([value, product]) => ({ value, label: product.label })), 'checking');
   fillSelect(ui.bank, bankChoices(), 'random');
   fillSelect(ui.numMonths, STATEMENT_COUNTS.map(count => ({ value: count, label: String(count) })), 3);
   fillSelect(ui.revenue, revenueChoices(), 'moderate');

@@ -38,7 +38,6 @@
   font-size: 7.5pt;
   font-weight: 500;
   color: #555;
-  letter-spacing: 1px;
   text-transform: uppercase;
 }
 
@@ -74,6 +73,13 @@
   text-align: right;
   font-size: 8.5pt;
   flex: 0 0 48%;
+}
+
+.product-name {
+  font-size: 10pt;
+  font-weight: bold;
+  color: var(--accent);
+  margin-bottom: 2px;
 }
 
 .k {

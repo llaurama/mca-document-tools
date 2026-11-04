@@ -110,7 +110,7 @@
         "debtCollectors": []
       },
       "resultSha256": "014c382c3a9e42b5c2a9ce76d6799db7e7954c2118a06e77cc51a695ce0c5ffd",
-      "htmlSha256": "71441291a31da2df802bfe087e4c36386c522876271e8c0df909e4ea5687fca9"
+      "htmlSha256": "61c8efb478a661982e053b33e92c0634d7a5d1100dd590976989af2311a944ba"
     },
     {
       "name": "verylight-daily-negative",
@@ -142,7 +142,7 @@
         "debtCollectors": []
       },
       "resultSha256": "6a819ade53fba0950489178a1ea44688cc28f4a4179549ad2f15e5c5da63f0d5",
-      "htmlSha256": "fefff2133a7c7090789f2bed43287002a664ae3ad4e9e9d3760269d63c27c734"
+      "htmlSha256": "6fe0f0ba0cbfa0139ee41af6c836c28fc9626e2489660590f081e32c3e5e81c3"
     },
     {
       "name": "light-weekly-overdraft",
@@ -166,7 +166,7 @@
         "debtCollectors": []
       },
       "resultSha256": "bd8d9480a2b88de52aaacf91d06435f641575a9ab677c4e10fc01c079e9458c9",
-      "htmlSha256": "15bf123c3f1dc5ef10bcfcd85d13183b3b8a75706c70273b2e02eaa6aac67aec"
+      "htmlSha256": "fb7b2928ad5eb473c922799def2ed38f7ae864fd8aa4f1b23c442dc995c9980d"
     },
     {
       "name": "high-obfuscated",
@@ -190,7 +190,7 @@
         "debtCollectors": []
       },
       "resultSha256": "aa58eb6f4fcd8782aebe89f1df05b67c1e1f8d3777fe0a665c6d799856c08eb1",
-      "htmlSha256": "2bf33d7f558d607c695f2a98fb49c4e3ad3f971f96cab6d6b47347971ddb419a"
+      "htmlSha256": "485e648fc1ba8ba78b528dc6c4273a584b554c01a4a8533efdc0bb3c563ed078"
     },
     {
       "name": "veryhigh-phantom",
@@ -209,7 +209,7 @@
         "debtCollectors": []
       },
       "resultSha256": "a111245f596d53838262c843bdc9cd8ea4f3ac95e62e8484aeefc72fc58019f9",
-      "htmlSha256": "999808b34e7db3e7eb397f61c65825b753c7dd2b1f6e147c8aa7204d9867e578"
+      "htmlSha256": "8c2ab7ba8898e94c7e5756b40bc89d93a63ba105fd7adbca5fc89ca6e0437d53"
     },
     {
       "name": "enterprise-six",
@@ -241,7 +241,7 @@
         "debtCollectors": []
       },
       "resultSha256": "634911bbab1a811ce07a6036940f4213ba3b2af692e0f6edaa3ccc3fa7896b3c",
-      "htmlSha256": "5cc989ffd251a2d1a9ac5f6632cf890dcaedbbf07af688da5c4d5b9989f71288"
+      "htmlSha256": "78b23f3c4c8355a16ab8ba94e6d9f1bd46e6a458da25316d5ef0bbf66dafa3fd"
     },
     {
       "name": "misstated-aliases",
@@ -273,7 +273,7 @@
         ]
       },
       "resultSha256": "e684f58051e953ddb2c270b5699b3ce17835b69bef5fd97c9584ff23509e1e18",
-      "htmlSha256": "1f310cdcb8496eccfec8cceb412b9fcca7e6e1f6793f49c56a55aaa8fb820250"
+      "htmlSha256": "190bf0447967c66607c2794d607fe36940a16b9ff4fe435bc710fb79f88aa80a"
     },
     {
       "name": "random-collectors-corruption",
@@ -305,7 +305,7 @@
         ]
       },
       "resultSha256": "ca8abedb3880ec463d655f061803cbb7800f032c4ada9bce34d0596a59342495",
-      "htmlSha256": "596e46c037ca8808b333a86c5aa31946102f3368fe92f8248a40647b190ee6cb"
+      "htmlSha256": "e7d7750fb5cb559245d72f3bbf579c7c71bca929492fb633e81c025ab8271b49"
     },
     {
       "name": "one-statement-html",
@@ -324,7 +324,7 @@
         "debtCollectors": []
       },
       "resultSha256": "2bfedbd037a93a44a44d20efc38fb901193163ecce880382a6de6d4e10ca59a0",
-      "htmlSha256": "7d3098079e13457f83ed4a9f90964816a875b1a08fb29e3eeef95ab4f047ec5a"
+      "htmlSha256": "23a8768d7fb419be147161122c8bb40c8dd7c6314e1d106f04731f827bd44361"
     },
     {
       "name": "two-year-boundary",
@@ -343,7 +343,7 @@
         "debtCollectors": []
       },
       "resultSha256": "b762c812021f230435fa311f273fd63eabf3d3ae1dfcb704a82f6300d194db25",
-      "htmlSha256": "4d51756b5dc21b6a6b1684254ee7ca73a0d081aa30970ffe2f44ba64770e2695"
+      "htmlSha256": "a6858f2e7aa3ec7cb87839e6615e93ae0b620e2aff6217b1bbc47f784550d216"
     },
     {
       "name": "four-bank-choice",
@@ -362,7 +362,7 @@
         "debtCollectors": []
       },
       "resultSha256": "62065fa90787a4c0709934e5e43dccd65f13d469c7bfde3c73439bc2f6071a81",
-      "htmlSha256": "4d9f114cbad2fcfeac04fcb3845fa798d50634f259224183b0bc30286a09f282"
+      "htmlSha256": "60d6bfe66d7a1ee75f46d3c6cc4c2ccfda8b0c71ee61a41e3af735806031a179"
     },
     {
       "name": "non-leap-century",
@@ -381,7 +381,7 @@
         "debtCollectors": []
       },
       "resultSha256": "18c6db22979c716f5a4274a38e0dfa5c60f5ae92fd73e22c711cafed6ffceabb",
-      "htmlSha256": "6ef0167f83ca4475e83301df3ac6a8fa1b3b8abe8d359792d1febc7abdbef065"
+      "htmlSha256": "aac8f15ce135f7de740fd247beb815ad6c756bc3d50d9430ccd8be370bbc009a"
     },
     {
       "name": "personal-commingled-verylight",
@@ -401,7 +401,7 @@
         "accountType": "personalCommingled"
       },
       "resultSha256": "c3285b231720c376acc87e258cb416dc8a8f06129da1122265273f1de5c7f094",
-      "htmlSha256": "95bf52f7fbdfd1b1d5adcbd0530908dd45303fbc09482ebc499c539c4bdd18cd"
+      "htmlSha256": "cb3bf2d91cf89e5d9f89623ee0b921c9dce9626659c46283dfb2b370719b8e9e"
     },
     {
       "name": "personal-only-below10k-financing",
@@ -431,7 +431,7 @@
         "accountType": "personalOnly"
       },
       "resultSha256": "3057286c37ce717b0bf1751d60cb46b3f1d7ff830f976071179d8568dc902643",
-      "htmlSha256": "dc47454abfe38cba2ffc3e0daa7a632fe01b1f6106b47d4628b18050db86927b"
+      "htmlSha256": "765f00618c5b2902e4f9abbe9adb6feab03f24e33602bdf051ce6bba7ab54dd3"
     },
     {
       "name": "personal-commingled-dba-unicode",
@@ -452,7 +452,7 @@
         "dba": true
       },
       "resultSha256": "a5fe168abb1a3881c0abb87f6f742ac90a399dc9935e7c09d81e5a3518cba8a4",
-      "htmlSha256": "a08e071c9f294f1cc93e0e58f6341c8e99f403226efd11057437eafc42a8b767"
+      "htmlSha256": "3ed99dc4362df66b23ee27f761f993a8842b9f0ca05091a20619d9e07b5d51dc"
     }
   ],
   "application": [

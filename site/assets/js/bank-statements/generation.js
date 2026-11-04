@@ -4,7 +4,7 @@ import { configError } from '../shared/validation.js';
 import {
   BANKS, FIRST, LAST, BIZ_CORE, BIZ_KIND, STREETS, CITIES, PROCESSORS, PLATFORM_DEPOSITS,
   CUSTOMER_NAMES, VENDORS, SUBSCRIPTIONS, UTILITIES, INSURANCE, LEASES, CC_PAYMENTS, FUNDERS,
-  PERSONAL_DEPOSITS, PERSONAL_VENDORS, PERSONAL_SUBSCRIPTIONS, PERSONAL_HOUSING, PERSONAL_HOUSING_RANGES, PERSONAL_RECURRING, PERSONAL_BANK_TAGS, ACCOUNT_TYPES,
+  PERSONAL_DEPOSITS, PERSONAL_VENDORS, PERSONAL_SUBSCRIPTIONS, PERSONAL_HOUSING, PERSONAL_HOUSING_RANGES, PERSONAL_RECURRING, PERSONAL_BANK_TAGS, ACCOUNT_TYPES, PRODUCTS,
   DEBT_COLLECTORS, DEBT_COLLECTOR_BY_NAME, DEBT_COLLECTOR_COUNTS, REVENUE_TIERS, BALANCE_TIERS,
   STATEMENT_COUNTS, FINANCING_PATTERNS, BREAK_MODES, CATEGORIES, CATEGORY_BY_KEY, MONTH_NAMES,
 } from './data.js';
@@ -41,6 +41,7 @@ function getMonths(lastMonth, numMonths) {
 }
 
 const accountTypeOf = config => config.accountType === undefined ? "business" : config.accountType;
+const productOf = config => config.product === undefined ? "checking" : config.product;
 
 function validateConfig(config) {
   const months = getMonths(config.lastMonth, config.numMonths);
@@ -51,6 +52,7 @@ function validateConfig(config) {
   if (config.bank !== "random" && !BANKS.some((_, index) => String(index) === config.bank)) throw configError("bank", "Choose a bank from the list.");
   const accountType = accountTypeOf(config);
   if (!Object.hasOwn(ACCOUNT_TYPES, accountType)) throw configError("accountType", "Choose an account type.");
+  if (!Object.hasOwn(PRODUCTS, productOf(config))) throw configError("product", "Choose a product.");
   if (!Object.hasOwn(REVENUE_TIERS, config.revenue)) throw configError("revenue", "Choose a revenue tier.");
   const { revenueTiers, personal } = ACCOUNT_TYPES[accountType];
   if (!revenueTiers.includes(config.revenue)) {
@@ -353,7 +355,8 @@ function generateStatements(config, rng = createRandom(config.seed)) {
   });
   statements.at(-1).breakInfo = makeBreakInfo(statements.at(-1), config.breakMode, rng);
   validateStatements(statements);
-  return { seed: config.seed, bank, business, statements, debtCollectors, ...(personal && { accountType }) };
+  const product = productOf(config);
+  return { seed: config.seed, bank, business, statements, debtCollectors, ...(personal && { accountType }), ...(product !== "checking" && { product }) };
 }
 
 

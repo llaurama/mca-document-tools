@@ -23,15 +23,20 @@ Revenue tiers, financing schedules, and ownership options define sample scenario
 
 ## How To Run
 
-From this directory:
+Open `site/index.html` in your browser and choose a generator. No server, build, or
+installation is needed to use the tools, so you can share the folder as is. PDF export
+loads its libraries from cdnjs, so it needs an internet connection.
+
+If you change any JavaScript under `site/assets/js/<tool>/` or `shared/`, rebuild the
+browser bundles with Node.js 22 or later:
 
 ```sh
-python3 -m http.server 8000 --directory site
+npm run build
 ```
 
-Open the served site in your browser, then choose a generator. Native JavaScript modules
-require serving over HTTP rather than opening the files directly. No build or
-package installation is needed.
+Browsers won't load JavaScript modules from `file://`, so each page loads one generated
+classic script (`site/assets/js/<tool>.bundle.js`) built from the modules. Edit the
+modules, never the bundles. `npm test` fails if a bundle is out of date.
 
 Run the regression suite with Node.js 22 or later:
 
@@ -64,7 +69,9 @@ making changes that should keep existing seeds compatible.
 
 The bank page retains html2canvas 1.4.1, jsPDF 2.5.1, and JSZip 3.10.1 from the
 existing cdnjs URLs for ZIP/PDF export. Its browser printing remains available if
-those libraries cannot load. The application and landing pages have no external
+those libraries cannot load. The two exports differ in kind: **Download ZIP** PDFs are
+images of the page (html2canvas), while **Print / Save PDF** produces a text PDF with
+embedded fonts, which is closer to a real bank's PDF. The application and landing pages have no external
 runtime dependencies. No backend, persistence, or integration service is added.
 
 ## Revenue Scenarios
@@ -122,6 +129,17 @@ Every financing debit reads `To <funder> - Merchant Advance Pmt`. MoneyThumb doe
 the fictional funder names, so it relies on the "Merchant Advance" phrase to tag the debits
 as MCA payments. Without the phrase, no financing reaches the bank summary.
 
+Each statement names the product (for example "Business Checking") above the account
+number, in the summary heading, and in the footer, the way real statements do. With these
+labels, MoneyThumb returns `accounttypestr` (confirmed for Checking on 2026-11-04, image PDF,
+fictional bank). Before them it returned an empty value.
+
+The **Product** dropdown picks Checking (default), Savings, or Credit Card. It changes only
+the labels ("Business Savings", "Business Credit Card Statement"); transactions are the same
+for every product. Credit Card is a label test, not a real card layout (no credit limit,
+minimum payment, or purchases-and-payments format). Results gain a `product` key only for
+non-checking products, so existing seeds and baselines are unchanged.
+
 ## Validation
 
 The regression suite checks exact seeded data/document parity, shared randomness,
@@ -131,13 +149,14 @@ revenue-tier limits, DBA rendering, deposit-source mix), and application ownersh
 and signatures.
 Fixed-seed expectations are stored in `tests/fixtures/generation-baselines.json`.
 
-For UI changes, serve both the site root and a nested URL, then check navigation,
+For UI changes, open the site from `file://` and from a static HTTP host, then check navigation,
 pending settings, inline errors, keyboard focus, narrow screens, and printing.
 Export checks should cover one and six statements, dense activity, ZIP filenames,
 locking and failure recovery, plus one- and four-owner signed applications.
 
 ## Hosting
 
-Serve `site/` from any static HTTP host. The project requires no server-side
-application, build step, or platform-specific configuration. Keep future tool
+Open `site/` directly or serve it from any static HTTP host. The project requires no
+server-side application or platform-specific configuration. Commit rebuilt bundles with
+the module changes. Keep future tool
 additions separate while extracting genuinely common helpers.
